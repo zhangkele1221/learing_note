@@ -153,3 +153,57 @@ f(rx);                          //T和param的类型都是int
 <br />
 
 # 条款24：理解模板类型推导
+https://cntransgroup.github.io/EffectiveModernCppChinese/5.RRefMovSemPerfForw/item24.html
+
+为了声明一个指向某个类型T的右值引用，你写下了T&&。由此，一个合理的假设是，当你看到一个“T&&”出现在源码中，你看到的是一个右值引用。唉，事情并不如此简单:
+```cpp
+void f(Widget&& param);             //右值引用
+Widget&& var1 = Widget();           //右值引用
+
+auto&& var2 = var1;                 //不是右值引用 why!!!!!!!!!
+
+template<typename T>
+void f(std::vector<T>&& param);     //右值引用
+
+template<typename T>
+void f(T&& param);                  //不是右值引用 why!!!!!!!!
+
+```
+T&&”有两种不同的意思。第一种，当然是右值引用。这种引用表现得正如你所期待的那样：它们只绑定到右值上，并且它们主要的存在原因就是为了识别可以移动操作的对象。
+
+“T&&”的另一种意思是，它既可以是右值引用，也可以是左值引用。这种引用在源码里看起来像右值引用（即“T&&”），但是它们可以表现得像是左值引用（即“T&”）。它们的二重性使它们既可以绑定到右值上（就像右值引用），也可以绑定到左值上（就像左值引用）。 此外，它们还可以绑定到const或者non-const的对象上，也可以绑定到volatile或者non-volatile的对象上，甚至可以绑定到既const又volatile的对象上。它们可以绑定到几乎任何东西。这种空前灵活的引用值得拥有自己的名字。我把它叫做通用引用（universal references）。（Item25解释了std::forward几乎总是可以应用到通用引用上，并且在这本书即将出版之际，一些C++社区的成员已经开始将这种通用引用称之为转发引用（forwarding references））。
+
+<font color = red>
+在两种情况下会出现通用引用。最常见的一种是函数模板形参，正如在之前的示例代码中所出现的例子：
+</font>
+
+```cpp
+template<typename T>
+void f(T&& param);                  //param是一个通用引用
+
+//第二种情况是auto声明符
+auto&& var2 = var1;                 //var2是一个通用引用
+```
+<font color = red>这两种情况的共同之处就是都存在类型推导。</font>
+在模板f的内部，param的类型需要被推导，而在变量var2的声明中，var2的类型也需要被推导。同以下的例子相比较（同样来自于上面的示例代码），下面的例子不带有类型推导。<font color = red>如果你看见“T&&”不带有类型推导，那么你看到的就是一个右值引用：</font>
+
+```c++
+void f(Widget&& param);         //没有类型推导，
+                                //param是一个右值引用
+
+Widget&& var1 = Widget();       //没有类型推导，
+                                //var1是一个右值引用
+```
+
+------------------
+------------------
+
+<font color = red>
+记住：
+
+1.如果一个函数模板形参的类型为T&&，并且T需要被推导得知，或者如果一个对象被声明为auto&&，这个形参或者对象就是一个通用引用。
+
+2.如果类型声明的形式不是标准的type&&，或者如果类型推导没有发生，那么type&&代表一个右值引用。
+
+3.通用引用，如果它被右值初始化，就会对应地成为右值引用；如果它被左值初始化，就会成为左值引用。
+</font>
