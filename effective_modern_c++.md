@@ -236,3 +236,113 @@ Widget&& var1 = Widget();       //没有类型推导，
 
 3.如果局部对象可以被返回值优化消除，就绝不使用std::move或者std::forward。
 </font>
+
+
+<br />
+<br />
+
+# 5章 右值引用，移动语义，完美转发
+
+移动语义使编译器有可能用廉价的移动操作来代替昂贵的拷贝操作。正如拷贝构造函数和拷贝赋值操作符给了你控制拷贝语义的权力，移动构造函数和移动赋值操作符也给了你控制移动语义的权力。移动语义也允许创建只可移动的类型，如std::unique_ptr，std::future和std::thread。
+
+完美转发使接收任意数量实参的函数模板成为可能，它可以将实参转发到其他的函数，使目标函数接收到的实参与被传递给转发函数的实参保持一致。
+
+右值引用是连接这两个截然不同的概念的胶合剂。它是使移动语义和完美转发变得可能的基础语言机制。
+
+本章的这些小节中，非常重要的一点是要牢记 <font color = red>形参永远是左值，即使它的类型是一个右值引用。</font>  如下所示
+```cpp
+void f(Widget&& w);
+
+//形参w是一个左值，即使它的类型是一个 右值引用的样子
+```
+
+
+
+## 条款23 理解std::move 和std::forward
+
+直接看std::move 源代码实现
+```cpp
+template<typename T>                            //在std命名空间
+typename remove_reference<T>::type&&
+move(T&& param)
+{
+    using ReturnType =                          //别名声明，见条款9
+        typename remove_reference<T>::type&&;
+
+    return static_cast<ReturnType>(param);
+}
+
+//正如你所见，std::move接受一个对象的引用（准确的说，一个通用引用（universal reference），见Item24)，返回一个指向同对象的引用。
+
+
+template<typename T>
+decltype(auto) move(T&& param)          //C++14，仍然在std命名空间
+{
+    using ReturnType = remove_referece_t<T>&&;
+    return static_cast<ReturnType>(param);
+}
+
+```
+对比下面的代码
+```c++
+class Annotation {
+public:
+    explicit Annotation(std::string text);  //将会被复制的形参，
+    …                                       //如同条款41所说，
+};                                          //值传递
+
+//但是Annotation类的构造函数仅仅是需要读取text的值，它并不需要修改它。为了和历史悠久的传统：能使用const就使用const保持一致，你修订了你的声明以使text变成const：
+
+class Annotation {
+public:
+    explicit Annotation(const std::string text);
+    …
+};
+
+//当复制text到一个数据成员的时候，为了避免一次复制操作的代价，你仍然记得来自Item41的建议，把std::move应用到text上，因此产生一个右值：
+
+class Annotation {
+public:
+    explicit Annotation(const std::string text)
+    ：value(std::move(text))    //“移动”text到value里；这段代码执行起来
+    { … }                       //并不是看起来那样  为什么呢？???????? 继续往下看
+    
+    …
+
+private:
+    std::string value;
+};
+
+//这段代码可以编译，可以链接，可以运行。这段代码将数据成员value设置为text的值。这段代码与你期望中的完美实现的唯一区别，是text并不是被移动到value，而是被拷贝  为什么呢？？？？？？？
+
+
+//诚然，text通过std::move被转换到右值，但是text被声明为const std::string，所以在转换之前，text是一个左值的const std::string，而转换的结果是一个右值的const std::string，但是纵观全程，const属性一直保留。
+
+
+当编译器决定哪一个std::string的构造函数被调用时，考虑它的作用，将会有两种可能性：
+
+class string {                  //std::string事实上是
+public:                         //std::basic_string<char>的类型别名
+    …
+    string(const string& rhs);  //拷贝构造函数
+    string(string&& rhs);       //移动构造函数
+    …
+};
+
+
+
+```
+<font color = red>
+在类Annotation的构造函数的成员初始化列表中，std::move(text)的结果是一个const std::string的右值。这个右值不能被传递给std::string的移动构造函数，因为移动构造函数只接受一个指向non-const的std::string的右值引用。然而，该右值却可以被传递给std::string的拷贝构造函数，因为lvalue-reference-to-const允许被绑定到一个const右值上。
+因此，std::string在成员初始化的过程中调用了拷贝构造函数，即使text已经被转换成了右值。
+这样是为了确保维持const属性的正确性。从一个对象中移动出某个值通常代表着修改该对象，所以语言不允许const对象被传递给可以修改他们的函数（例如移动构造函数）</font>
+
+<br />
+
+从这个例子，总结出两点。
+
+第一，不要在你希望能移动对象的时候，声明他们为const。对const对象的移动请求会悄无声息的被转化为拷贝操作
+
+第二，std::move不仅不移动任何东西，而且它也不保证它执行转换的对象可以被移动。
+
+关于std::move，你能确保的唯一一件事就是将它应用到一个对象上，你能够得到一个右值。
