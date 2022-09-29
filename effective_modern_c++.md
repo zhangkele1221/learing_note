@@ -9,7 +9,7 @@ void f(ParamType param);
 f(expr);    //使用表达式调用f
 ```
 
-在编译期间，编译器使用expr进行两个类型推导： `<font color = red>`一个是针对T的，另一个是针对ParamType的。`</font>`  `<font color = green>`这两个类型通常是不同的，因为ParamType包含一些修饰，比如const和引用修饰符。`</font>`举个例子，如果模板这样声明：
+在编译期间，编译器使用expr进行两个类型推导： <font color = red>一个是针对T的，另一个是针对ParamType的。</font>  <font color = green>这两个类型通常是不同的，因为ParamType包含一些修饰，比如const和引用修饰符。</font>`举个例子，如果模板这样声明：
 
 ```cpp
 template<typename T>
@@ -41,7 +41,7 @@ void f(ParamType param);
 f(expr);     //从expr中推导T和ParamType
 ```
 
-`<font color = red>` 情景一：ParamType是一个指针或引用，但不是通用引用  `</font>`
+<font color = red> 情景一：ParamType是一个指针或引用，但不是通用引用  </font>
 
 ```cpp
 最简单的情况是ParamType是一个指针或者引用，但非通用引用
@@ -89,7 +89,7 @@ f(px);                          //T是const int，param的类型是const int*
 
 ```
 
-`<font color = red>`情景二：ParamType是一个通用引用  `</font>`
+<font color = red>情景二：ParamType是一个通用引用  </font>
 
 ```cpp
 /*首先要明白 ParamType是一个通用引用 什么时候才是通用引用 切记why*/
@@ -123,7 +123,7 @@ Item24详细解释了为什么这些例子是像这样发生的。/*这里关键
 
 ```
 
-`<font color = red>`情景三： ParamType既不是指针也不是引用  `</font>`
+<font color = red>情景三： ParamType既不是指针也不是引用  </font>
 
 ```cpp
 当ParamType既不是指针也不是引用时，我们通过传值（pass-by-value）的方式处理：
@@ -215,8 +215,86 @@ T&&”有两种不同的意思。第一种，当然是右值引用。这种引�
 
 从这个例子，总结出两点。
 
+<font color = green>
 第一，不要在你希望能移动对象的时候，声明他们为const。对const对象的移动请求会悄无声息的被转化为拷贝操作
 
-第二，std::move不仅不移动任何东西，而且它也不保证它执行转换的对象可以被移动。
+第二，std::move不仅不移动任何东西，而且它也不保证它执行转换的对象可以被移动。</font> 
 
 关于std::move，你能确保的唯一一件事就是将它应用到一个对象上，你能够得到一个右值。
+
+----
+
+关于std::forward的故事与std::move是相似的，但是与std::move总是无条件的将它的实参为右值不同，std::forward只有在满足一定条件的情况下才执行转换。std::forward是有条件的转换。要明白什么时候它执行转换，什么时候不，想想std::forward的典型用法。最常见的情景是一个模板函数，接收一个通用引用形参，并将它传递给另外的函数：
+
+```cpp
+void process(const Widget& lvalArg);        //处理左值
+void process(Widget&& rvalArg);             //处理右值
+
+
+template<typename T>                        //用以转发param到process的模板
+void logAndProcess(T&& param)
+{
+    ....
+
+    process(std::forward<T>(param)); //这就叫完美转发哦！！！！！
+
+    // process(param); 这里如果写成这样的调用 就会调用  process(const Widget& lvalArg); 左值调用的处理版本了 
+    ....
+}
+
+Widget w;
+
+logAndProcess(w);               //用左值调用
+logAndProcess(std::move(w));    //用右值调用
+
+
+但是param，正如所有的其他函数形参一样，是一个左值。每次在函数logAndProcess内部对函数process的调用，都会因此调用函数process的左值重载版本。为防如此，我们需要一种机制：当且仅当传递给函数logAndProcess的用以初始化param的实参是一个右值时，param会被转换为一个右值。这就是std::forward做的事情。这就是为什么std::forward是一个有条件的转换：它的实参用右值初始化时，转换为一个右值。
+
+你也许会想知道std::forward是怎么知道它的实参是否是被一个右值初始化的。举个例子，在上述代码中，std::forward是怎么分辨param是被一个左值还是右值初始化的？ 简短的说，该信息藏在函数logAndProcess的模板参数T中。该参数被传递给了函数std::forward，它解开了含在其中的信息。该机制工作的细节可以查询Item28。
+
+```
+---
+考虑到std::move和std::forward都可以归结于转换，它们唯一的区别就是std::move总是执行转换，而std::forward偶尔为之。你可能会问是否我们可以免于使用std::move而在任何地方只使用std::forward。 从纯技术的角度，答案是yes：std::forward是可以完全胜任，std::move并非必须.
+对比如下 两个例子
+```cpp
+class Widget {
+public:
+    Widget(Widget&& rhs)
+    : s(std::move(rhs.s))
+    { ++moveCtorCalls; }
+
+    …
+
+private:
+    static std::size_t moveCtorCalls;
+    std::string s;
+};
+
+
+class Widget{
+public:
+    Widget(Widget&& rhs)                    //不自然，不合理的实现
+    : s(std::forward<std::string>(rhs.s))
+    { ++moveCtorCalls; }
+
+    …
+
+}
+
+//看完这两个有什么想法 或者思考 不懂就看书
+
+```
+
+<font color = red>
+记住：
+
+1.std::move执行到右值的无条件的转换，但就自身而言，它不移动任何东西。
+
+2.std::forward只有当它的参数被绑定到一个右值时，才将参数转换为右值。
+
+3.std::move和std::forward在运行期什么也不做。</font>
+
+
+
+
+
