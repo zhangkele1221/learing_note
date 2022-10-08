@@ -510,9 +510,41 @@ C++11对于特殊成员函数处理的规则如下：
 </font>
 
 <br/>
+
+```cpp
+
+class StringTable {
+public:
+    StringTable() {}
+    …                   //插入、删除、查找等函数，但是没有拷贝/移动/析构功能
+private:
+    std::map<int, std::string> values;
+};
+
+================================
+class StringTable {
+public:
+    StringTable()
+    { makeLogEntry("Creating StringTable object"); }    //增加的
+
+    ~StringTable()                                      //也是增加的
+    { makeLogEntry("Destroying StringTable object"); }
+    …                                               //其他函数同之前一样
+private:
+    std::map<int, std::string> values;              //同之前一样
+};
+
+看起来合情合理，但是声明析构有潜在的副作用：它阻止了移动操作的生成。然而，拷贝操作的生成是不受影响的。因此代码能通过编译，运行，也能通过功能（译注：即打日志的功能）测试。功能测试也包括移动功能，因为即使该类不支持移动操作，对该类的移动请求也能通过编译和运行。这个请求正如之前提到的，会转而由拷贝操作完成。它意味着对StringTable对象的移动实际上是对对象的拷贝，即拷贝里面的std::map<int, std::string>对象。拷贝std::map<int, std::string>对象很可能比移动慢几个数量级。简单的加个析构就引入了极大的性能问题！对拷贝和移动操作显式加个= default，问题将不再出现。
+=================================
+
+```
+
+
+
 <br/>
 
 ```cpp
+
 注意没有“成员函数模版阻止编译器生成特殊成员函数”的规则。这意味着如果Widget是这样：
 
 class Widget {
