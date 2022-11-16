@@ -30,7 +30,7 @@
 ```
 
 
-## gdb 和 addr2line 调试 crash（包含如何调试so里面的crash）
+## gdb 和 addr2line 调试 crash（包含如何调试so里面的crash） dmesg + addr2line
 来自 https://blog.csdn.net/lishenglong666/article/details/80913018
 
 先看下面
@@ -127,9 +127,9 @@ objdump -d  gdb
 addr2line -e  gdb  1161
 执行后可以清晰的看出哪一行代码出现了问题
 /home/test_use_tool/gdb.cc:6
+```
 
 
-
-
-
+## 方法四: strace + addr2line
+https://blog.csdn.net/stpeace/article/details/49852065
 
