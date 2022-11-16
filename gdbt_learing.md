@@ -29,6 +29,7 @@
 
 ```
 
+# core dump 问题解决方法汇总
 
 ## gdb 和 addr2line 调试 crash（包含如何调试so里面的crash） dmesg + addr2line
 来自 https://blog.csdn.net/lishenglong666/article/details/80913018
