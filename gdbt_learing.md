@@ -134,3 +134,7 @@ addr2line -e  gdb  1161
 ## 方法四: strace + addr2line
 https://blog.csdn.net/stpeace/article/details/49852065
 
+
+
+## 100个gdb 小技巧
+## https://wizardforcel.gitbooks.io/100-gdb-tips/content/
