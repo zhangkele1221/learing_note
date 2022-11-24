@@ -238,5 +238,101 @@ int main()
 # 关于gpu 线程管理和内存的文章 
  - https://zhuanlan.zhihu.com/p/97044592
 
+
+
+# 
+# 
+
 # 关于gpu 线程配置和讲解 核函数配置 一定要看
  - https://zhuanlan.zhihu.com/p/151676261
+
+# 
+## CUDA核函数和线程配置
+- CUDA核函数
+在GPU上执行的函数称为CUDA核函数（Kernel Function)，核函数会被GPU上多个线程执行，我们可以在核函数中获取当前线程的ID。
+```c++
+// CUDA核函数的定义
+__global__ void addKernel(int *c, const int *a, const int *b)
+{
+    int i = threadIdx.x;
+    c[i] = a[i] + b[i];
+}
+
+// CUDA核函数调用
+addKernel<<<Dg,Db, Ns, S>>>(c, a, b);
+
+
+可以总结出CUDA核函数的使用方式：
+
+1.使用关键字global来标识，在CPU上调用，在GPU上执行，返回值为void
+2.使用<<< >&gt;&gt;来指定线程索引方式
+3.核函数相对于CPU是异步的，在核函数执行完之前就会返回，这样CPU可以不用等待核函数的完成，继续执行后续代码
+4.核函数不支持可变参数，不支持静态变量，不支持函数指针
+
+
+```
+## 线程配置
+
+在Host端核函数的调用方式为：
+```c++
+kernel<<<Dg, Db, Ns, S>>>(param list);
+
+Dg：int型或者dim3类型(x,y,z)，用于定义一个Grid中Block是如何组织的，如果是int型，则表示一维组织结构
+Db：int型或者dim3类型(x,y,z)，用于定义一个Block中Thread是如何组织的，如果是int型，则表示一维组织结构
+
+Ns：size_t类型，可缺省，默认为0； 用于设置每个block除了静态分配的共享内存外，最多能动态分配的共享内存大小，单位为byte。 0表示不需要动态分配。
+S：cudaStream_t类型，可缺省，默认为0。 表示该核函数位于哪个流。
+
+
+
+当使用dim3类型时，比如：
+dim3 grid(3,2,1), block(4,3,1);
+kernel_name<<<grid, block>>>(...);
+
+表示一个Grid中有3x2x1=6个Block，在(x,y,z)三个方向上的排布方式分别是 3、2、1；
+表示一个Block中有4x3x1=12个Thread，在(x,y,z)三个方向上的排布方式分别是 4、3、1；
+
+
+当使用int类型时，表示一维排布，比如：
+kernel_name<<<5,8>>>(...);
+表示一个Grid中有5个Block，在(x,y,z)三个方向上的排布方式分别是 5、1、1；
+表示一个Block中有8个Thread，在(x,y,z)三个方向上的排布方式分别是 8、1、1
+
+
+
+
+
+在CUDA上可以使用内置变量来获取Thread ID和Block ID：
+
+threadIdx.[x, y, z]表示Block内Thread的编号
+blockIdx.[x, y, z]表示Gird内Block的编号
+blockDim.[x, y, z]表示Block的维度，也就是Block中每个方向上的Thread的数目
+gridDim.[x, y, z]表示Gird的维度，也就是Grid中每个方向上Block的数目
+
+
+
+
+例子
+一维Grid 一维Block
+kernel_name<<<4, 8>>>(...)
+
+具体的线程索引方式如下图所示，blockIdx从0到3，threadIdx从0到7.
+```
+![avatar](https://pic2.zhimg.com/80/v2-4dc920a29466db3f993a1047d055d4e5_1440w.webp)
+
+```c++
+当我们要计算下图中红色的Thread的索引时，可以看出，它的blockIdx.x是2，threadIdx.x是1，因此它的threadId索引计算方式为：
+
+int threadId = blockIdx.x * blockDim.x + threadIdx.x = 2 * 4 + 1 = 9
+```
+![avatar](https://pic2.zhimg.com/80/v2-d02c028a2fc90caeafabf34845ed1175_1440w.webp)
+
+二维Grid 二维Block
+```c++
+无论是几维的，索引的原则是一样的，先求出这个Thread前面的所有Block中Thread的数量，再求出该Thread在本Block中的序号，两个相加即可。
+
+下面为了画图方便，我们以将Block的维度设为(4,1,1)，其实是一维Block了，但计算公式是一样的：
+
+
+
+```
