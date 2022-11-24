@@ -230,3 +230,13 @@ int main()
 相比之前的代码，使用统一内存更简洁了，值得注意的是kernel执行是与host异步的，由于托管内存自动进行数据传输，这里要用cudaDeviceSynchronize()函数保证device和host同步，这样后面才可以正确访问kernel计算的结果。
 
 ```
+
+
+
+
+
+# 关于gpu 线程管理和内存的文章 
+ - https://zhuanlan.zhihu.com/p/97044592
+
+# 关于gpu 线程配置和讲解 核函数配置 一定要看
+ - https://zhuanlan.zhihu.com/p/151676261
