@@ -1,3 +1,4 @@
+//https://juejin.cn/post/6844904130989801479
 #include <pthread.h>
 #include <atomic>
 #include <chrono>
@@ -337,6 +338,7 @@ size_t DoublyBufferedData<T, TLS>::Modify(Fn& fn) {
   // AddWrapper() or RemoveWrapper() too long. Most of the time, modifications
   // are done by one thread, contention should be negligible.
   SCOPED_LOCK(_modify_mutex);
+  //首先是获得修改锁，然后调用fn修改后台数据，如果修改失败就直接返回了
   int bg_index = !_index.load(std::memory_order_relaxed);
   // background instance is not accessed by other threads, being safe to
   // modify.
@@ -350,6 +352,12 @@ size_t DoublyBufferedData<T, TLS>::Modify(Fn& fn) {
   // The release fence matches with the acquire fence in UnsafeRead() to
   // make readers which just begin to read the new foreground instance see
   // all changes made in fn.
+  //修改完之后反转 index 这里用的是 release 内存序，
+  //可以保证读线程一旦读到了新的index 数据的修改也一定可见，
+  //在这个操作之后，所有的 read 获得的就是修改后的 新前台数据了，
+  //然后依次调用所有 wrapper 的 WaitReadDone 其实就是挨个每获取完一个锁就释放，
+  //确保在index反转之前的所有读取都已经结束，这个循环过后当前的后台数据就没有线程在用了，
+  //可以安全修改，再次调用fn。
   _index.store(bg_index, std::memory_order_release);
   bg_index = !bg_index;
 
