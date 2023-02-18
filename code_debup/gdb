@@ -1,0 +1,12 @@
+
+
+gbd ./exe 之后的一步骤需要传入  一些参数使用 start命令或run 命令 但是两者是有区别的
+需要一开始就看到启动过程惊喜gdb 那就用start 
+
+start  --flagfile=conf/gflags.conf 
+
+run  --flagfile=conf/gflags.conf  会一直走到程序的最后看不到启动加载的过程了吧 
+
+
+
+
