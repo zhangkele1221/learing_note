@@ -5,8 +5,11 @@ gbd ./exe 之后的一步骤需要传入  一些参数使用 start命令或run �
 
 start  --flagfile=conf/gflags.conf 
 
+gbd 环境下 上面  --flagfile=conf/gflags.conf  这个目录不一定对的上
+
+
 run  --flagfile=conf/gflags.conf  会一直走到程序的最后看不到启动加载的过程了吧 
 
 
-
-
+b SearchWorker.cpp:119
+b SearchWorker::initWorkerApp()
