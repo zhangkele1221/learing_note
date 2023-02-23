@@ -11,5 +11,10 @@ gbd 环境下 上面  --flagfile=conf/gflags.conf  这个目录不一定对的�
 run  --flagfile=conf/gflags.conf  会一直走到程序的最后看不到启动加载的过程了吧 
 
 
+git stash 
+git pull 
+git stash pop //在看有没有冲突
+
+
 b SearchWorker.cpp:119
 b SearchWorker::initWorkerApp()
