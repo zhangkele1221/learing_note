@@ -1,0 +1,26 @@
+
+
+
+git使用过程中的问题:
+
+1.本地修改 未add和commit 但是要同步远程代码到本地 标准操作如下:
+git stash 
+git pull 
+git stash pop //这一步看有没有冲突 有冲突解决冲突  也可以通过git stash show 查看 stash 的内容
+
+如果上面没有git stash 直接 pull 会出现冲突 pull 拉不下来 或者覆盖本地修改 或无冲突和覆盖直接同步 
+应该用git stash   git pull git stash pop 这样的操作上面的标准做法操作 
+
+2.当前分支开放过程中 当前分支需要切换到别的分支开发 
+git add git commit  git push 这一些列操作  这是可以的 但是有需要就是不想 git add 当前的修改
+但是不add  直接使用 git checkout 不到别的分支 怎么操作呢？
+
+当然是 git stash 然后切换到别的分支  操作完成别的分支再次切回来 git stash pop  这样之前没有提交的就恢复到之前没有提交的状态咯！
+
+3. 只想将别的分支的某一次提交 提交到某一个分支 
+请使用 git cherry-pick  commid 
+
+
+
+
+

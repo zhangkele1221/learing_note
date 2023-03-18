@@ -1,0 +1,12 @@
+
+
+auto it = std::remove(vec1.begin(), vec1.end(), value);
+vec1.erase(it, vec1.end());
+
+//20 简化
+std::erase(vec1, value);
+
+
+
+
+
