@@ -1,11 +1,4 @@
-/*************************************************************************
-    > File Name: TaskDSL.cpp
-    > Author: Netcan
-    > Descripton: TaskDSL
-    > Blog: https://netcan.github.io/
-    > Mail: 1469709759@qq.com
-    > Created Time: 2020-08-14 20:57
-************************************************************************/
+
 #include <tuple>
 #include <cstdio>
 #include "Typelist.hpp"
