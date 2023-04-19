@@ -27,9 +27,6 @@ class moduleA : public module{
             // 这里是moduleA的执行操作
             cout<< "Executing moduleA"<< name() <<endl;
         }
-    private:
-        string name_;
-        vector<string> deps_;
 };
 
 //定义moduleB 类 继承自module
