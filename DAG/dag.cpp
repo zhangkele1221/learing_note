@@ -84,10 +84,11 @@ int main(){
 
     //创建excutor 对象  添加 module 对象
     excutor e;
+    e.add_module(&mA3);
     e.add_module(&mA1);
     e.add_module(&mA2);
     e.add_module(&mB1);
-    e.add_module(&mA3);
+   
 
     //执行所有module 的操作
     e.excutor_all();
