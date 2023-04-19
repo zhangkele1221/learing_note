@@ -79,7 +79,7 @@ int main(){
     //创建moudle 对象 并且指定他们的依赖关系
     moduleA mA1("A1",{});
     moduleA mA2("A2",{"A1"});
-    moduleA mB1("B1",{"A1","A2"});
+    moduleB mB1("B1",{"A1","A2"});
     moduleA mA3("A3",{"B1"});
 
     //创建excutor 对象  添加 module 对象
