@@ -1,5 +1,7 @@
-
+// https://www.cnblogs.com/whuanle/p/16297025.html#%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%B7%AF
 /*
+https://www.cnblogs.com/whuanle/p/16297025.html#%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%B7%AF
+
 实现一个最简单的 LSM（Log-Structured Merge-tree）数据库的基础版本涉及几个关键部分：
 内存表（MemTable），磁盘表（SSTable），以及合并和压缩机制。
 下面是一个简化的示例，它提供了一个基本框架，但请注意，为了简洁和清晰，这个实现省略了很多实用功能，
