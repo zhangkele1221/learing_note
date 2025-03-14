@@ -1,0 +1,14 @@
+#ifndef RED_SEARCH_WORKER_SW_APP_INTERFACE_RUNSTATUS_H_
+#define RED_SEARCH_WORKER_SW_APP_INTERFACE_RUNSTATUS_H_
+
+namespace sw {
+
+enum RunStatus {
+    FAILED = 1,
+    SUCCESS = 2,
+    YIELD = 3,
+};
+
+}  // namespace sw
+
+#endif  // RED_SEARCH_WORKER_SW_APP_INTERFACE_RUNSTATUS_H_
