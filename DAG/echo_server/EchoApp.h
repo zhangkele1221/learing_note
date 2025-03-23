@@ -20,7 +20,7 @@ namespace example {
 class EchoApp : public SwApp {
 public:
     EchoApp() {
-        _topology.push_back({"echo_module", "echo_module", {}});
+        _topology.push_back({"echo_module", "echo_module", {}});//这个图在开始的时候就自己在 所依赖的 app 就拼dag 图了.......
     }
 
     bool init(std::unordered_map<std::string, Component*>* components) override {
@@ -35,7 +35,7 @@ public:
             APP_LOG(TRACE) << "log_component is " << iter->second;
         }
 
-        iter = components->find("rpc_component");
+        iter = components->find("rpc_component");// 关注这个 主件就行了 
         if (components->end() == iter) {
             APP_FORMAT_LOG(ERROR, "rpc_component not found");
             return false;
@@ -46,7 +46,7 @@ public:
             APP_FORMAT_LOG(ERROR, "EchoApp::init add_topology failed");
             return false;
         }
-        if (!rpc_component->add_serving("sw.example.proto.EchoService", "echo", "default", nullptr)) {
+        if (!rpc_component->add_serving("sw.example.proto.EchoService", "echo", "default", nullptr)) {//这个屌用有点意思.......
             APP_FORMAT_LOG(ERROR, "EchoApp::init add_serving failed");
             return false;
         }
