@@ -30,10 +30,16 @@ public:
 };
 }  // namespace sw
 
+/*
+目的：定义动态库必须导出的函数名称（模块名称、版本、创建/销毁接口）
+*/
+
 #define SW_APP_INTERFACE_KEYWORD_GET_NAME          GetAppName
 #define SW_APP_INTERFACE_KEYWORD_GET_VERSION       GetAppVersion
 #define SW_APP_INTERFACE_KEYWORD_CREATE_INTERFACE  CreateInterface
 #define SW_APP_INTERFACE_KEYWORD_DESTROY_INTERFACE DestroyInterface
+
+//DEFINE_SW_APP("EchoServer", "0", sw::SwApp, sw::example::EchoApp);
 
 #ifndef SW_APP_LINK_STATIC
 #define DEFINE_SW_APP(_name_, _version_, _base_type_, _concrete_type_)                                      \
@@ -65,5 +71,9 @@ public:
     void SW_APP_INTERFACE_KEYWORD_DESTROY_INTERFACE(sw::IBaseInterface *p) { delete p; }
 
 #endif
+
+//class MyPluginImpl : public IMyPlugin { /* 实现接口方法 */ };
+//DEFINE_SW_APP("MyPlugin", "1.0", IMyPlugin, MyPluginImpl);
+//DEFINE_SW_APP("EchoServer", "0", sw::SwApp, sw::example::EchoApp); // 通过静态注册机制，将 EchoApp 的类型信息注入框架。
 
 #endif  // RED_SEARCH_WORKER_SW_APP_INTERFACE_DLMODULEINTERFACE_H_
