@@ -1,0 +1,19 @@
+syntax = "proto2";
+
+package sw.example.proto;
+
+option java_package = "com.xiaohongshu.service.search.sw.example.proto";
+option java_multiple_files = true;
+option cc_generic_services = true;
+
+service EchoService {
+    rpc echo (EchoRequest) returns (EchoResponse) {}
+}
+
+message EchoRequest {
+    optional string query = 1;
+}
+
+message EchoResponse {
+    optional string query = 1;
+}
