@@ -1,4 +1,4 @@
-#include "sw/server/SearchWorker.h"
+#include "SearchWorker.h"
 #include "app_interface/SwApp.h"
 #include "json2pb/pb_to_json.h"
 #include "cppcommon/monitor/cat_initializer.h"

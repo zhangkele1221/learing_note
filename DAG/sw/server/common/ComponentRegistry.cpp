@@ -1,4 +1,4 @@
-#include "sw/common/ComponentRegistry.h"
+#include "ComponentRegistry.h"
 
 namespace sw {
 

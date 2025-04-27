@@ -1,16 +1,16 @@
-#include "sw/server/AppProxy.h"
+#include "AppProxy.h"
 #include "brpc/adaptive_protocol_type.h"
 #include "butil/file_util.h"
 #include "google/protobuf/descriptor.h"
 #include "google/protobuf/message.h"
 #include "google/protobuf/service.h"
 #include "google/protobuf/util/json_util.h"
-#include "sw/proto/rpc_call_config.pb.h"
-#include "sw/proto/topology_config.pb.h"
+//#include "sw/proto/rpc_call_config.pb.h"
+//#include "sw/proto/topology_config.pb.h"
 #include "sw/server/ModuleTopologyManager.h"
-#include "sw/server/SessionLocalData.h"
+//#include "sw/server/SessionLocalData.h"
 #include "sw/server/component/RpcComponentImpl.h"
-#include "sw/util/Log.h"
+#include "Log.h"
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -127,6 +127,7 @@ bool AppProxy::setup_reload_scheme() {
     return true;
 }
 
+/*
 bool AppProxy::loadTopologyFromBiz(const std::string& name, const std::string& path) {
     if (_rpc_component == nullptr) {
         TERR("_rpc_component is null, loadTopologyFromBiz failed, name:[%s].", name.c_str());
@@ -159,7 +160,7 @@ bool AppProxy::loadTopologyFromBiz(const std::string& name, const std::string& p
         return false;
     }
     return _rpc_component->module_topology_manager()->add_topology(topology_config);
-}
+}*/
 
 bool AppProxy::unloadTopologyByName(const std::string& name) {
     if (_rpc_component == nullptr) {
@@ -176,12 +177,14 @@ bool AppProxy::unloadTopologyByName(const std::string& name) {
 }
 
 bool AppProxy::loadBiz(const std::string& name, const std::string& path) {
-#ifdef _SW_BIND_BIZ_AND_TOPOLOGY
+
+/*#ifdef _SW_BIND_BIZ_AND_TOPOLOGY
     if (!loadTopologyFromBiz(name, path)) {
         TERR("loadTopologyFromBiz  failed, name:[%s] path:[%s]", name.c_str(), path.c_str());
         return false;
     }
-#endif
+#endif*/
+
     return _app->loadBiz(name, path);
 }
 

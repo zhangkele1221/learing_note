@@ -1,4 +1,4 @@
-#include "app_sdk/ModuleRegistry.h"
+#include "ModuleRegistry.h"
 
 namespace sw {
 ModuleRegistry* ModuleRegistry::_instance = nullptr;

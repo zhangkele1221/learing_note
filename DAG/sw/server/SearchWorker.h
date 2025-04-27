@@ -1,13 +1,13 @@
 #ifndef RED_SEARCH_WORKER_SW_SERVER_SEARCHWORKER_H_
 #define RED_SEARCH_WORKER_SW_SERVER_SEARCHWORKER_H_
 
-#include "app_interface/SwApp.h"
-#include "sw/server/AppLoader.h"
-#include "sw/target/heartbeat/HeartBeatManager.h"
-#include "sw/server/RpcServer.h"
-#include "sw/server/RpcServiceImpl.h"
-#include "sw/interface/HealthCheckable.h"
-#include "sw/target/WorkerTargetController.h"
+#include "SwApp.h"
+#include "AppLoader.h"
+//#include "sw/target/heartbeat/HeartBeatManager.h"
+#include "RpcServer.h"
+#include "RpcServiceImpl.h"
+//#include "sw/interface/HealthCheckable.h"
+//#include "sw/target/WorkerTargetController.h"
 
 namespace sw {
 class SessionLocalDataFactory;

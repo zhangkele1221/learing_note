@@ -6,10 +6,10 @@
 #include <unordered_set>
 #include <vector>
 #include <atomic>
-#include "bthread/mutex.h"
-#include "butil/containers/doubly_buffered_data.h"
-#include "sw/proto/topology_config.pb.h"
-#include "app_interface/RpcComponent.h"
+//#include "bthread/mutex.h"
+//#include "butil/containers/doubly_buffered_data.h"
+//#include "sw/proto/topology_config.pb.h"
+#include "RpcComponent.h"
 
 namespace sw {
 class SwApp;
@@ -132,7 +132,7 @@ public:
     // thread-safe if add_module is only invoked at startup
     bool add_topology(const std::string &name, const std::vector<RunnableElement> &topology,
             std::unordered_map<std::string, std::string> && topology_params);
-    bool add_topology(const proto::TopologyConfigWithModuleDefinition& topology_with_local_module);
+    //bool add_topology(const proto::TopologyConfigWithModuleDefinition& topology_with_local_module);
     void remove_topology(const std::string& name);
     void clear();
 

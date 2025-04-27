@@ -4,7 +4,7 @@
 #include <string>
 #include <unordered_map>
 
-#include "app_interface/RpcComponent.h"
+#include "RpcComponent.h"
 namespace sw {
 /**
  * module的种类划分规则：

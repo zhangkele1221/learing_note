@@ -1,10 +1,10 @@
-#include "sw/server/RpcServer.h"
+#include "RpcServer.h"
 #include <vector>
 #include <unordered_set>
 #include <unordered_map>
 #include "sw/server/RpcServiceImpl.h"
-#include "sw/server/SwBuiltinServiceImpl.h"
-#include "sw/util/Log.h"
+//#include "sw/server/SwBuiltinServiceImpl.h"
+#include "Log.h"
 #include "sw/common/ComponentRegistry.h"
 #include "sw/server/component/RpcComponentImpl.h"
 #include "sw/server/AppProxy.h"

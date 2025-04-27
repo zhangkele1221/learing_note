@@ -1,7 +1,7 @@
 #ifndef RED_SEARCH_WORKER_SW_APP_INTERFACE_SYNCMODULE_H_
 #define RED_SEARCH_WORKER_SW_APP_INTERFACE_SYNCMODULE_H_
 
-#include "app_interface/RunnableModule.h"
+#include "RunnableModule.h"
 
 namespace sw {
 

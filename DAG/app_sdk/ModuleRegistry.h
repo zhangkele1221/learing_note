@@ -1,10 +1,10 @@
 #ifndef RED_SEARCH_WORKER_SW_APP_SDK_MODULEREGISTRY_H_
 #define RED_SEARCH_WORKER_SW_APP_SDK_MODULEREGISTRY_H_
 
-#include "app_interface/ReloadableModule.h"
-#include "app_interface/RunnableModule.h"
-#include "registry/element_registry.h"
-#include "registry/factory_registry.h"
+//#include "app_interface/ReloadableModule.h"
+#include "RunnableModule.h"
+#include "element_registry.h"
+#include "factory_registry.h"
 
 namespace sw {
 class ModuleRegistry {
@@ -22,13 +22,13 @@ public:
         return _runnable_module_factory_registry;
     }
 
-    red_search_cppcommon::ElementRegistry<ReloadableModule>& get_reloadable_module_registry() {
-        return _reloadable_module_registry;
-    }
+    //red_search_cppcommon::ElementRegistry<ReloadableModule>& get_reloadable_module_registry() {
+    //    return _reloadable_module_registry;
+    //}
 
 private:
     red_search_cppcommon::FactoryRegistryImpl<RunnableModule> _runnable_module_factory_registry;
-    red_search_cppcommon::ElementRegistryImpl<ReloadableModule> _reloadable_module_registry;
+    //red_search_cppcommon::ElementRegistryImpl<ReloadableModule> _reloadable_module_registry;
     static ModuleRegistry* _instance;
 };
 }  // namespace sw
@@ -39,7 +39,10 @@ private:
     REGISTER_FACTORY(&sw::ModuleRegistry::instance()->get_runnable_module_factory_registry(), _name_,       \
                      _class_)
 
+/*
 #define REGISTER_RELOADABLE_MODULE(_name_, _class_)                                                         \
     REGISTER_ELEMENT(&sw::ModuleRegistry::instance()->get_reloadable_module_registry(), _name_, _class_)
+
+*/
 
 #endif  // RED_SEARCH_WORKER_SW_APP_SDK_MODULEREGISTRY_H_

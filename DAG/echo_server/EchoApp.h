@@ -7,12 +7,12 @@
 #include <utility>
 #include <vector>
 
-#include "app_interface/ConfigComponent.h"
-#include "app_interface/MonitorComponent.h"
-#include "app_interface/SwApp.h"
-#include "app_sdk/ModuleRegistry.h"
-#include "app_sdk/logger.h"
-#include "example/echo_server/EchoService.pb.h"
+//#include "ConfigComponent.h"
+//#include "MonitorComponent.h"
+#include "SwApp.h"
+#include "ModuleRegistry.h"
+//#include "app_sdk/logger.h"
+#include "EchoService.pb.h"
 
 namespace sw {
 namespace example {

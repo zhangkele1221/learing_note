@@ -1,10 +1,10 @@
 #ifndef RED_SEARCH_WORKER_SW_APP_DEMO_ECHOMODULE_H_
 #define RED_SEARCH_WORKER_SW_APP_DEMO_ECHOMODULE_H_
 
-#include "app_interface/Context.h"
-#include "app_interface/SyncModule.h"
-#include "app_sdk/logger.h"
-#include "example/echo_server/EchoService.pb.h"
+#include "Context.h"
+#include "SyncModule.h"
+//#include "app_sdk/logger.h"
+#include "EchoService.pb.h"
 
 namespace sw {
 namespace example {

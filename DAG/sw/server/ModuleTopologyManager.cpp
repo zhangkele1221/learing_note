@@ -1,10 +1,10 @@
-#include "sw/server/ModuleTopologyManager.h"
+#include "ModuleTopologyManager.h"
 #include <typeindex>
 #include "app_interface/SwApp.h"
 #include "app_interface/SyncModule.h"
 #include "sw/server/component/RpcComponentImpl.h"
-#include "sw/server/SessionLocalData.h"
-#include "sw/util/Log.h"
+//#include "sw/server/SessionLocalData.h"
+#include "Log.h"
 #include "gflags/gflags.h"
 
 DEFINE_bool(enable_parallel_module_scheduling, false,
@@ -268,7 +268,10 @@ bool ModuleTopologyManager::ValidateAndReserveSessionLocalDataOnStartup() const 
     return true;
 }
 
+
 size_t ModuleTopologyManager::topology_using_count(const std::string &topology_name) const {
+    
+    /*
     butil::DoublyBufferedData<Index>::ScopedPtr ptr;
     if (0 == _dbd.Read(&ptr)) {
         auto* t = ptr->seek(topology_name);
@@ -276,6 +279,7 @@ size_t ModuleTopologyManager::topology_using_count(const std::string &topology_n
             return static_cast<size_t>(t->reference_count());
         }
     }
+    */
     return 0lu;
 }
 
@@ -500,6 +504,7 @@ bool ModuleTopologyManager::add_module(const proto::Module &module) {
 更新双缓冲索引：替换或新增拓扑配置。
 监控初始化：注册拓扑使用次数的监控指标。
 */
+/*
 bool ModuleTopologyManager::add_topology(const proto::TopologyConfigWithModuleDefinition& packed) {
     const auto &topology_name = packed.runnable_topology().name();
 
@@ -647,7 +652,7 @@ bool ModuleTopologyManager::add_topology(const proto::TopologyConfigWithModuleDe
             packed.runnable_topology().element_size());
     wait_and_delete(replaced);
     return true;
-}
+}*/
 
 bool ModuleTopologyManager::add_topology(const std::string &name, const std::vector<RunnableElement> &desc,
         std::unordered_map<std::string, std::string> && topology_params) {

@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "app_interface/Component.h"
+#include "Component.h"
 
 namespace google {
 namespace protobuf {

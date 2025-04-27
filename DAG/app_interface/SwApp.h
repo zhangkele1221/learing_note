@@ -5,13 +5,13 @@
 #include <unordered_map>
 #include <utility>
 
-#include "app_interface/Component.h"
-#include "app_interface/Context.h"
-#include "app_interface/DataFactory.h"
-#include "app_interface/DlModuleInterface.h"
-#include "app_interface/ReloadableModule.h"
-#include "app_interface/RunnableModule.h"
-#include "cppcommon/registry/registry.h"
+#include "Component.h"
+#include "Context.h"
+//#include "DataFactory.h"
+#include "DlModuleInterface.h"
+//#include "ReloadableModule.h"
+#include "RunnableModule.h"
+#include "registry.h"
 
 namespace sw {
 class SwApp : public IBaseInterface {

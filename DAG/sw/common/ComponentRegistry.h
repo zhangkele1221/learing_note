@@ -1,7 +1,7 @@
 #ifndef RED_SEARCH_WORKER_SW_COMMON_COMPONENTREGISTRY_H_
 #define RED_SEARCH_WORKER_SW_COMMON_COMPONENTREGISTRY_H_
 
-#include "cppcommon/registry/element_registry.h"
+#include "element_registry.h"
 #include <string>
 #include <unordered_map>
 

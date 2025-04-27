@@ -1,9 +1,9 @@
 #ifndef RED_SEARCH_WORKER_SW_SERVER_APPPROXY_H_
 #define RED_SEARCH_WORKER_SW_SERVER_APPPROXY_H_
 
-#include "app_interface/SwApp.h"
+#include "SwApp.h"
 #include <functional>
-#include "putil/LoopThread.h"
+//#include "putil/LoopThread.h"
 
 namespace sw {
 class RpcComponentImpl;

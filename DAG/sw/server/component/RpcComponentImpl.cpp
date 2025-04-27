@@ -1,20 +1,21 @@
-#include "sw/server/component/RpcComponentImpl.h"
-#include "sw/server/ChannelManager.h"
-#include "sw/common/ComponentRegistry.h"
-#include "sw/config/ServerConfiguration.h"
-#include "sw/util/Log.h"
-#include "sw/proto/rpc_call_config.pb.h"
-#include "sw/proto/topology_config.pb.h"
+#include "RpcComponentImpl.h"
+#include "ChannelManager.h"
+#include "ComponentRegistry.h"
+//#include "config/ServerConfiguration.h"
+#include "Log.h"
+//#include "sw/proto/rpc_call_config.pb.h"
+//#include "sw/proto/topology_config.pb.h"
 #include "google/protobuf/message.h"
 #include "google/protobuf/util/json_util.h"
 #include "butil/file_util.h"
-#include "brpc/adaptive_protocol_type.h"
+//#include "brpc/adaptive_protocol_type.h"
 
 namespace sw {
 DECLARE_AND_SETUP_LOGGER(sw, RpcComponentImpl);
 
 static const ServiceCallingOptions kDefaultServiceCallingOptions = {200, 500, 0, "baidu_std", "rr", "", "", "", ""};
 
+/*
 static bool pack_minimal_topology(
         const ::google::protobuf::RepeatedPtrField<proto::Module>& module_list,
         const proto::MinimalTopology& topology, proto::TopologyConfigWithModuleDefinition* output) {
@@ -34,6 +35,7 @@ static bool pack_minimal_topology(
     output->Swap(&packed);
     return true;
 }
+*/
 
 static bool pack_simple_topology(
         const ::google::protobuf::RepeatedPtrField<proto::Module>& module_list,
@@ -265,6 +267,7 @@ bool RpcComponentImpl::add_topology(const std::string &config_or_file_path, bool
     }
 #endif
 
+    /*
     // for minimal topology
     for (const auto & t : topology_config.minimal_topology()) {
         proto::TopologyConfigWithModuleDefinition packed;
@@ -275,6 +278,7 @@ bool RpcComponentImpl::add_topology(const std::string &config_or_file_path, bool
             return false;
         }
     }
+    */
 
     // for simple topology
     for (const auto & t : topology_config.simple_topology()) {
@@ -435,6 +439,7 @@ bool RpcComponentImpl::add_calling(const std::string &config_or_file_path, bool 
         }
     }
 
+    /*
     sw::proto::RpcCallConfig rpc_call_config;
     google::protobuf::util::JsonParseOptions parse_options;
     parse_options.ignore_unknown_fields = true;
@@ -450,7 +455,9 @@ bool RpcComponentImpl::add_calling(const std::string &config_or_file_path, bool 
              config_or_file_path.c_str(), content.c_str());
         return true;
     }
+    */
 
+    /*
     for (const sw::proto::RpcCall& config : rpc_call_config.rpc_call()) {
         if (!config.has_name() || config.name().empty()) {
             TERR("name of rpc_call is required");
@@ -493,7 +500,8 @@ bool RpcComponentImpl::add_calling(const std::string &config_or_file_path, bool 
             TERR("add rpc_calling[%s] failed", config.name().c_str());
             return false;
         }
-    }
+    }*/
+
     return true;
 }
 

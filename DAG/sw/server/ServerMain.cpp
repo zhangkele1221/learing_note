@@ -1,15 +1,15 @@
 #include <iostream>
 #include <string>
-#include "client/linux/handler/exception_handler.h"
-#include "absl/debugging/failure_signal_handler.h"
-#include "alog/Configurator.h"
+//#include "client/linux/handler/exception_handler.h"
+//#include "absl/debugging/failure_signal_handler.h"
+//#include "alog/Configurator.h"
 #include "gflags/gflags.h"
-#include "cppcommon/logging/log_initializer.h"
-#include "cppcommon/monitor/alog_cat_appender.h"
-#include "prpc/PnsClientWrapper.h"
-#include "sw/server/SearchWorker.h"
-#include "sw/util/file_util.h"
-#include "sw/config/AlogConfig.h"
+//#include "cppcommon/logging/log_initializer.h"
+//#include "cppcommon/monitor/alog_cat_appender.h"
+//#include "prpc/PnsClientWrapper.h"
+#include "SearchWorker.h"
+//#include "sw/util/file_util.h"
+//#include "sw/config/AlogConfig.h"
 #include "butil/file_util.h"
 
 
@@ -96,7 +96,7 @@ bool configureLogger() {
     red_search_cppcommon::InitBrpcLogUsingAlog();
     red_search_cppcommon::InitGlogRedirectingToAlog();
     if (FLAGS_enable_cat_monitor) {
-        alog::Logger::getRootLogger()->addAppender(red_search_cppcommon::AlogCatAppender::instance());
+        //alog::Logger::getRootLogger()->addAppender(red_search_cppcommon::AlogCatAppender::instance());
     }
 
     std::cout << "Glog, BrpcLog, Alog initialized" << std::endl;
@@ -104,12 +104,12 @@ bool configureLogger() {
 }
 
 void shutdownLogger() {
-    red_search_cppcommon::ResetBrpcLogUsingAlog();
-    red_search_cppcommon::ResetGlogRedirectingToAlog();
+    //red_search_cppcommon::ResetBrpcLogUsingAlog();
+    //red_search_cppcommon::ResetGlogRedirectingToAlog();
     if (FLAGS_enable_cat_monitor) {
-        alog::Logger::getRootLogger()->removeAppender(red_search_cppcommon::AlogCatAppender::instance());
+    //    alog::Logger::getRootLogger()->removeAppender(red_search_cppcommon::AlogCatAppender::instance());
     }
-    alog::Logger::shutdown();
+    //alog::Logger::shutdown();
     std::cout << "Alog closed" << std::endl;
     return;
 }
@@ -238,29 +238,29 @@ int sw_main(int argc, char* argv[]) {
         waitSignal();
         stopSearchWorker();
 
-        prpc::PnsClientWrapper::GetInstance()->clear();
+        //prpc::PnsClientWrapper::GetInstance()->clear();
         /**
          * DO NOT close alog because some background thread may be using it now.
          */
 //                shutdownLogger();
-        alog::Logger::flushAll();
+        //alog::Logger::flushAll();
 
         // 移除cat appender，因为alog和cat会有析构顺序问题
-        red_search_cppcommon::ResetAlog();
+        //red_search_cppcommon::ResetAlog();
 
         return 0;
     } else {
         std::cout << "start search worker failed!" << std::endl;
 
-        prpc::PnsClientWrapper::GetInstance()->clear();
+        //prpc::PnsClientWrapper::GetInstance()->clear();
         /**
          * DO NOT close alog because some background thread may be using it now.
          */
 //                shutdownLogger();
-        alog::Logger::flushAll();
+        //alog::Logger::flushAll();
 
         // 移除cat appender，因为alog和cat会有析构顺序问题
-        red_search_cppcommon::ResetAlog();
+        //red_search_cppcommon::ResetAlog();
         return -1;
     }
 }
