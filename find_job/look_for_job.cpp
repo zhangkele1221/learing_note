@@ -3383,6 +3383,177 @@ public:
 
 
 
+在C++中实现一个简单的DAG（有向无环图）可以通过使用图的表示方式，例如邻接表或邻接矩阵。我们可以使用邻接表来表示图，并实现一些基本的操作，例如添加节点、添加边、检测环等。
+
+下面是一个简单的DAG实现，使用邻接表来表示图，并包含检测环的功能：
+
+### 代码实现：
+
+```cpp
+#include <iostream>
+#include <list>
+#include <vector>
+#include <queue>
+
+class DAG {
+private:
+    int numVertices;  // 图中的顶点数量
+    std::vector<std::list<int>> adjList;  // 邻接表
+
+    // DFS辅助函数，用于检测环
+    bool isCyclicUtil(int vertex, std::vector<bool>& visited, std::vector<bool>& recursionStack);
+
+public:
+    DAG(int vertices);  // 构造函数
+
+    // 添加边到图中
+    void addEdge(int src, int dest);
+
+    // 检测图中是否有环
+    bool isCyclic();
+
+    // 打印图
+    void printGraph();
+};
+
+// 构造函数，初始化邻接表
+DAG::DAG(int vertices) {
+    numVertices = vertices;
+    adjList.resize(numVertices);
+}
+
+// 添加边的函数
+void DAG::addEdge(int src, int dest) {
+    if (src >= numVertices || dest >= numVertices) {
+        std::cerr << "Error: Vertex index out of bounds." << std::endl;
+        return;
+    }
+    adjList[src].push_back(dest);  // 添加边到邻接表
+}
+
+// 检测环的DFS辅助函数
+bool DAG::isCyclicUtil(int vertex, std::vector<bool>& visited, std::vector<bool>& recursionStack) {
+    // 标记当前节点为已访问
+    visited[vertex] = true;
+    recursionStack[vertex] = true;
+
+    // 遍历当前节点的所有邻接节点
+    for (auto it = adjList[vertex].begin(); it != adjList[vertex].end(); ++it) {
+        int adjVertex = *it;
+
+        // 如果邻接节点没有被访问，则递归检查
+        if (!visited[adjVertex]) {
+            if (isCyclicUtil(adjVertex, visited, recursionStack))
+                return true;
+        }
+        // 如果邻接节点已经在递归栈中，则说明有环
+        else if (recursionStack[adjVertex]) {
+            return true;
+        }
+    }
+
+    // 当前节点的递归栈标记为false
+    recursionStack[vertex] = false;
+    return false;
+}
+
+// 检测图中是否有环
+bool DAG::isCyclic() {
+    std::vector<bool> visited(numVertices, false);        // 访问标记
+    std::vector<bool> recursionStack(numVertices, false); // 递归栈标记
+
+    // 遍历所有顶点
+    for (int i = 0; i < numVertices; ++i) {
+        if (!visited[i]) {
+            if (isCyclicUtil(i, visited, recursionStack))
+                return true;
+        }
+    }
+
+    return false;
+}
+
+// 打印图的邻接表
+void DAG::printGraph() {
+    for (int i = 0; i < numVertices; ++i) {
+        std::cout << "Adjacency list of vertex " << i << ": ";
+        for (auto it = adjList[i].begin(); it != adjList[i].end(); ++it) {
+            std::cout << *it << " ";
+        }
+        std::cout << std::endl;
+    }
+}
+
+int main() {
+    DAG dag(4);  // 创建一个包含4个顶点的DAG
+
+    // 添加边
+    dag.addEdge(0, 1);
+    dag.addEdge(0, 2);
+    dag.addEdge(1, 2);
+    dag.addEdge(2, 3);
+
+    // 打印图
+    dag.printGraph();
+
+    // 检测是否有环
+    if (dag.isCyclic()) {
+        std::cout << "The graph contains a cycle." << std::endl;
+    } else {
+        std::cout << "The graph does not contain a cycle." << std::endl;
+    }
+
+    return 0;
+}
+```
+
+### 代码说明：
+
+1. **DAG类**：这是一个简单的DAG类，使用邻接表来表示图。邻接表是一个 `std::vector<std::list<int>>`，其中每个顶点都有一个邻接列表。
+
+2. **addEdge函数**：用于在图中添加边。注意DAG是有向图，所以只从源节点指向目标节点。
+
+3. **isCyclic函数**：用于检测图中是否有环。它通过DFS（深度优先搜索）算法来检查是否存在环。
+
+4. **isCyclicUtil函数**：这是一个递归函数，用于辅助检测环。它使用 `visited` 数组来标记已经访问过的节点，使用 `recursionStack` 数组来标记当前递归路径中的节点。如果某个节点已经在递归栈中被访问过，则说明存在环。
+
+5. **printGraph函数**：用于打印图的邻接表。
+
+### 运行结果：
+
+假设我们添加的边是 `0 -> 1`, `0 -> 2`, `1 -> 2`, `2 -> 3`，那么图的邻接表如下：
+
+```
+Adjacency list of vertex 0: 1 2 
+Adjacency list of vertex 1: 2 
+Adjacency list of vertex 2: 3 
+Adjacency list of vertex 3: 
+```
+
+由于这是一个DAG，没有环，所以输出为：
+
+```
+The graph does not contain a cycle.
+```
+
+### 扩展：
+
+你可以通过修改 `addEdge` 函数来添加更多的边，甚至可以尝试添加一个环（例如 `3 -> 0`），看看检测环的功能是否正常工作。
+
+例如：
+```cpp
+dag.addEdge(3, 0);
+```
+
+这样就会形成一个环，检测结果会变成：
+
+```
+The graph contains a cycle.
+```
+
+### 总结：
+
+这个实现是一个简单的DAG类，能够添加边、检测环并打印图的结构。你可以根据需求扩展它，例如添加拓扑排序功能、删除边、检查节点是否存在等。
 
 
 
