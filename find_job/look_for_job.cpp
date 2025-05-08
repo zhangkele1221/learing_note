@@ -3330,4 +3330,63 @@ int main()
     }
 }
 
+//高性能线程安全的哈希表 （分桶）
+template <typename Key, typename Value>
+class ConcurrentHashMap{
+private:
+	struct Bucket{
+		std::list<std::pair<Key,Value>> data;
+		matbale std::mutex mutex;
+	};
+
+	std::vector<Bucket> buckets_;
+	size_t bucket_count_;
+	size_t hash(const Key&key) const{
+		return std::hash<Key>{}(key)%bucket_count_;
+	}
+
+public:
+	ConcurrentHashMap(size_t bucket_count = 64):buckets_(bucket_count),bucket_count_(bucket_count){}
+
+	void insert(const Key &key, const Value &value){
+		size_t index = hash(key);
+		std::lock_guard<std::mutex> lock(buckets_[index].mutex);
+		auto& bucket = buckets_[index].data;
+		auto it = std::find_id(bucket.begin(),bucket.end(),[&](const auto& pair){
+			return pair.first == key;
+		});
+		if(if != bucket,end()){
+			it->seconde = value;
+		}else{
+			bucket.emplace_back(key,value);
+		}
+	}
+
+	bool get(cosnt Key&key,Value &value) const{
+		size_t index = hash(key);
+		std::lock_guard<std::mutex> lock(buckets_[index].mutex);
+		const auto&bucket = buckets_[index].data;
+		auto it = std::find_if(bucket.begin(),bucket.end(),
+		[&](const auto* pair)){
+			return pair.first == key;
+		});
+
+		if(it != bucket.end()){
+			value = it->second;
+			return true;
+		}
+		return false;
+	}
+};
+// 分别对每一个桶加锁 减少力度 减少锁竞争 提升并发度
+// list 处理哈希冲突 支持动态扩容
+
+
+
+
+
+
+
+
+
 
