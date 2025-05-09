@@ -32,7 +32,7 @@ class GlobalContext {
 
     template <typename T>
     T * get_reloadable_module(const char * name) {
-        return static_cast<T *>(get_reloadable_module(name));
+    //    return static_cast<T *>(get_reloadable_module(name));
     }
 };
 

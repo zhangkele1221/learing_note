@@ -5,9 +5,9 @@
 #include <unordered_map>
 #include <mutex>  // NOLINT
 #include "brpc/adaptive_protocol_type.h"
-#include "app_interface/RpcComponent.h"
+#include "RpcComponent.h"
 #include "butil/containers/flat_map.h"
-#include "sw/server/ModuleTopologyManager.h"
+#include "ModuleTopologyManager.h"
 #include "brpc/options.pb.h"
 
 namespace sw {

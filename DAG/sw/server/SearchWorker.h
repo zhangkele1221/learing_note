@@ -6,7 +6,7 @@
 //#include "sw/target/heartbeat/HeartBeatManager.h"
 #include "RpcServer.h"
 #include "RpcServiceImpl.h"
-//#include "sw/interface/HealthCheckable.h"
+#include "HealthCheckable.h"
 //#include "sw/target/WorkerTargetController.h"
 
 namespace sw {
@@ -35,7 +35,7 @@ private:
 
     bool                         _started;
     RpcServer*             _rpcServer;
-    WorkerTargetController*      _workerTargetController;
+    //WorkerTargetController*      _workerTargetController;
 
     SwAppLoader _appLoader;// bool StaticLoader::load(const char *)  这个会调用静态app的 模块 
     AppProxy *_appProxy;

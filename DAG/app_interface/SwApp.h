@@ -31,9 +31,10 @@ public:
      * 返回的DataFactory由app自行释放，SW不负责释放。
      * @return
      */
-    virtual DataFactory* session_local_data_factory() {
+    
+    /*virtual DataFactory* session_local_data_factory() {
         return nullptr;
-    }
+    }*/
 
     /**
      * 获取app内部的runnable_module的factory的registry。SW会在其中查找相应的module，然后调用factory生成对象。
@@ -46,7 +47,7 @@ public:
      * 获取reloadable_module实例的注册中心。SW框架会调用该接口来获取APP的所有的reloadable_module实例，这些
      * 实例归属于app，SW框架仅仅只是引用，并不负责管理释放。
      */
-    virtual red_search_cppcommon::ElementRegistry<ReloadableModule>* get_reloadable_module_registry() = 0;
+    // virtual red_search_cppcommon::ElementRegistry<ReloadableModule>* get_reloadable_module_registry() = 0;
 
     /**
      * 加载/卸载so

@@ -10,7 +10,7 @@ extern void SW_APP_INTERFACE_KEYWORD_DESTROY_INTERFACE(sw::IBaseInterface *p);
 
 namespace sw {
 
-DECLARE_AND_SETUP_LOGGER(sw, StaticLoader);
+//DECLARE_AND_SETUP_LOGGER(sw, StaticLoader);
 
 bool StaticLoader::load(const char *) {
     // DEFINE_SW_APP("EchoServer", "0", sw::SwApp, sw::example::EchoApp);
@@ -26,11 +26,15 @@ bool StaticLoader::load(const char *) {
         return false;
     }
 
+
     _name = name;
     _version = version;
 
-    TLOG("static linked module loaded, inner name is %s, inner version is %s",
-         _name.c_str(), _version.c_str());
+    std::cout<<" name = "<<_name<<" version "<<_version<<std::endl;
+
+    //TLOG("static linked module loaded, inner name is %s, inner version is %s",
+    //     _name, _version);
+
     return true;
 }
 

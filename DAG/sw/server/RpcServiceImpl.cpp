@@ -1,11 +1,11 @@
 #include "RpcServiceImpl.h"
-#include "app_interface/SwApp.h"
+#include "SwApp.h"
 #include "brpc/controller.h"
 #include "brpc/reloadable_flags.h"
 #include "brpc/closure_guard.h"
 #include "json2pb/pb_to_json.h"
 #include "google/protobuf/descriptor.h"
-//#include "sw/server/ModuleScheduler.h"
+#include "ModuleScheduler.h"
 //#include "sw/server/RequestContextImpl.h"
 //#include "sw/server/SessionLocalData.h"
 #include "RpcComponentImpl.h"
@@ -99,8 +99,8 @@ void RpcServiceImpl::CallMethod(const ::google::protobuf::MethodDescriptor* meth
     brpc::ClosureGuard done_guard(done);
     if (FLAGS_access_log_sample_rate > 0
         && (int64_t) butil::fast_rand_less_than(1000000) < FLAGS_access_log_sample_rate) {
-        alog::Logger::getLogger("_sw_request_sample")->logPureMessage(alog::LOG_LEVEL_INFO,
-                BuildAccessLog(method, controller, request));
+        //alog::Logger::getLogger("_sw_request_sample")->logPureMessage(alog::LOG_LEVEL_INFO,
+        //        BuildAccessLog(method, controller, request));
     }
     const RpcServingConfig *config = nullptr;
     if (method->index() >= 0 && method->index() < static_cast<int>(_method_necessities_list.size())) {

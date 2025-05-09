@@ -1,8 +1,8 @@
 #include "ModuleTopologyManager.h"
 #include <typeindex>
-#include "app_interface/SwApp.h"
-#include "app_interface/SyncModule.h"
-#include "sw/server/component/RpcComponentImpl.h"
+#include "SwApp.h"
+#include "SyncModule.h"
+#include "RpcComponentImpl.h"
 //#include "sw/server/SessionLocalData.h"
 #include "Log.h"
 #include "gflags/gflags.h"
@@ -119,6 +119,7 @@ class ManagerStorage {
     bthread::Mutex _storage_mutex;
 };
 
+/*
 SessionLocalDataPool * CreateSessionLocalDataPool(const std::string &name, sw::DataFactory *app_sld_factory,
         const void *arg, bool test_and_reserve = false) {
     std::unique_ptr<SessionLocalDataFactory> factory;
@@ -135,19 +136,21 @@ SessionLocalDataPool * CreateSessionLocalDataPool(const std::string &name, sw::D
         TDEBUG("%lu SessionLocalData reserved successfully", pool->size());
     }
     return pool.release();
-}
+}*/
 
 
-ModuleTopology::ModuleTopology() : _session_local_data_pool(nullptr), _reference_count(0) {}
+ModuleTopology::ModuleTopology() : /*_session_local_data_pool(nullptr),*/ _reference_count(0) {}
 
 ModuleTopology::~ModuleTopology() {
-    delete _session_local_data_pool;
+    //delete _session_local_data_pool;
 }
 
+/*
 void ModuleTopology::own_session_local_data_pool(SessionLocalDataPool *pool) {
     delete _session_local_data_pool;
     _session_local_data_pool = pool;
 }
+*/
 
 ModuleTopologyManager::Index::Index() {
     _map.reserve(16);
@@ -253,16 +256,16 @@ bool ModuleTopologyManager::ValidateAndReserveSessionLocalDataOnStartup() const 
     }
 
     for (const auto & item : ptr->_map) {
-        bool validation_success = item.second->session_local_data_pool()->Test();
-        if (!validation_success) {
+        //bool validation_success = item.second->session_local_data_pool()->Test();
+        //if (!validation_success) {
             TERR("validate topology[%s] failed", item.first.c_str());
-            return false;
-        }
+          //  return false;
+        //}
     }
 
     for (const auto & item : ptr->_map) {
-        item.second->session_local_data_pool()->Reserve();
-        const size_t size = item.second->session_local_data_pool()->size();
+        //item.second->session_local_data_pool()->Reserve();
+        //const size_t size = item.second->session_local_data_pool()->size();
         TDEBUG("%lu SessionLocalData of topology[%s] reserved successfully", size, item.first.c_str());
     }
     return true;
@@ -353,6 +356,8 @@ bool ModuleTopologyManager::topology_sort(const std::vector<RunnableElement> &to
                                     std::vector<RunnableElement> *sorted_topology,
                                     const std::unordered_map<std::string, std::string> &factories,
                                     std::unordered_set<std::string> *parallel_modules) {
+    
+    /*
     ::google::protobuf::RepeatedPtrField<proto::RunnableTopology_Element> converted;
     for (auto & e : topology) {
         auto * one = converted.Add();
@@ -361,9 +366,12 @@ bool ModuleTopologyManager::topology_sort(const std::vector<RunnableElement> &to
             one->add_dependency(d);
         }
     }
-    return topology_sort(converted, sorted_topology, factories, parallel_modules);
+    */
+    return true;// 先这样编译
+    //return topology_sort(converted, sorted_topology, factories, parallel_modules);
 }
 
+/*
 bool ModuleTopologyManager::topology_sort(
         const ::google::protobuf::RepeatedPtrField<proto::RunnableTopology_Element> &topology,
         std::vector<RunnableElement> *sorted_topology,
@@ -437,6 +445,7 @@ bool ModuleTopologyManager::topology_sort(
 
     return true;
 }
+*/
 
 bool
 ModuleTopologyManager::has_exactly_global_module(const std::string &name,
@@ -682,7 +691,8 @@ bool ModuleTopologyManager::add_topology(const std::string &name, const std::vec
         }
     }
 
-    return add_topology(packed);
+    return true;// 下面先注释编译....
+    // return add_topology(packed);
 }
 
 // replace/remove的主要思路是：

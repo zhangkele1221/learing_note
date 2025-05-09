@@ -1,0 +1,75 @@
+syntax = "proto2";
+
+package sw.proto;
+
+option java_package = "com.xiaohongshu.service.search.sw.proto";
+option java_multiple_files = true;
+
+message Param {
+    required string key = 1;
+    required string value = 2;
+}
+
+message Module {
+    required string name = 1;
+    required string factory_name = 2;
+    repeated Param custom_params = 3;
+    // DONOT forget to update `sw::Equal` function in `red_search_worker/sw/server/ModuleTopologyManager.cpp:20`
+}
+
+// only names. executed sequentially
+message MinimalTopology {
+    required string name = 1;
+    repeated string element = 2;
+}
+
+// names and params. executed sequentially
+message SimpleTopology {
+    message Element {
+        required string name = 1;
+        repeated Param custom_params = 2;
+    }
+    required string name = 1;
+    repeated Element element = 2;
+}
+
+// This kind of topology has the only difference with RunnableTopology:
+// (1) SyncModule is by default added to the dependencies of the next module.
+message SemiSequentialTopology {
+    message Element {
+        required string name = 1;
+        repeated string dependency = 2;
+        repeated Param custom_params = 3;
+    }
+
+    required string name = 1;
+    repeated Element element = 2;
+    repeated Param custom_params = 3;
+}
+
+// fully qualified, names, dependencies and params. Used to express complex running topologies
+message RunnableTopology {
+    message Element {
+        required string name = 1;
+        repeated string dependency = 2;
+        repeated Param custom_params = 3;
+        optional bool allow_parallel = 4 [default = false];
+    }
+
+    required string name = 1;
+    repeated Element element = 2;
+    repeated Param custom_params = 3;
+}
+
+message TopologyConfig {
+    repeated Module module = 1;
+    repeated RunnableTopology runnable_topology = 2;
+    repeated MinimalTopology minimal_topology = 3;
+    repeated SimpleTopology simple_topology = 4;
+    repeated SemiSequentialTopology semi_sequential_topology = 5;
+}
+
+message TopologyConfigWithModuleDefinition {
+    repeated Module module = 1;
+    required RunnableTopology runnable_topology = 2;
+}

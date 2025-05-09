@@ -19,7 +19,7 @@ public:
         auto* request = dynamic_cast<const sw::example::proto::EchoRequest*>(context->get_request());
         auto* response = dynamic_cast<sw::example::proto::EchoResponse*>(context->get_response());
         response->set_query(request->query());
-        APP_LOG(TRACE) << "echo [" << request->query() << "]";
+        //APP_LOG(TRACE) << "echo [" << request->query() << "]";
         return RunStatus::SUCCESS;
     }
 

@@ -12,6 +12,10 @@
 //#include "sw/config/AlogConfig.h"
 #include "butil/file_util.h"
 
+#include <signal.h>     // 添加此行
+#include <pthread.h>    // 添加此行
+#include <fcntl.h>     // 添加此行
+#include <unistd.h>    // 添加此行
 
 // NOTE: never make s_ncore extern const whose ctor seq against other
 // compilation units is undefined.
@@ -42,22 +46,27 @@ bool parseAndValidateArgs(int argc, char* argv[]) {
     gflags::ParseCommandLineFlags(&argc, &argv, true);
 
     if (!FLAGS_log.empty()) {
+        
+        /*
         if (!sw::FileUtil::fileExist(FLAGS_log)) {
             std::cout << "log configuration file [" << FLAGS_log << "] is not exist!" << std::endl;
             return false;
-        }
+        }*/
+    
     }
 
     if (FLAGS_config.empty()) {
         std::cout << "server configuration is not specified!" << std::endl;
-        return false;
+        //return false;
 
     } else {
+        /*
         if (!sw::FileUtil::fileExist(FLAGS_config)) {
             std::cout << "server configuration file [" << FLAGS_config << "] is not exist!"
                       << std::endl;
             return false;
-        }
+        }*/
+
     }
 
     return true;
@@ -69,12 +78,12 @@ bool startSearchWorker(const std::string& configPath) {
     global_search_worker = new sw::SearchWorker;
 
     if (!global_search_worker->init(configPath)) {
-        DELETE_AND_SET_NULL(global_search_worker);
+        //DELETE_AND_SET_NULL(global_search_worker);
         return false;
     }
 
     if (!global_search_worker->start()) {
-        DELETE_AND_SET_NULL(global_search_worker);
+        //DELETE_AND_SET_NULL(global_search_worker);
         return false;
     }
 
@@ -90,11 +99,11 @@ void stopSearchWorker() {
 }
 
 bool configureLogger() {
-    std::string fileContent = sw::AlogConfig::instance()->make_alog_config();
-    alog::Configurator::configureLoggerFromString(fileContent.c_str());
+    //std::string fileContent = sw::AlogConfig::instance()->make_alog_config();
+    //alog::Configurator::configureLoggerFromString(fileContent.c_str());
 
-    red_search_cppcommon::InitBrpcLogUsingAlog();
-    red_search_cppcommon::InitGlogRedirectingToAlog();
+    //red_search_cppcommon::InitBrpcLogUsingAlog();
+    //red_search_cppcommon::InitGlogRedirectingToAlog();
     if (FLAGS_enable_cat_monitor) {
         //alog::Logger::getRootLogger()->addAppender(red_search_cppcommon::AlogCatAppender::instance());
     }
@@ -159,6 +168,7 @@ static void WriteToThreadDumpFile(const char* msg) {
     }
 }
 
+/*
 void registerFailureSignalHandlerForQuickThreadDump() {
     if (FLAGS_enable_abseil_thread_dump) {
         // register {SIGSEGV, SIGILL, SIGFPE, SIGABRT, SIGTERM, SIGBUS, SIGTRAP} handler from abseil
@@ -169,7 +179,7 @@ void registerFailureSignalHandlerForQuickThreadDump() {
         options.writerfn = WriteToThreadDumpFile;
         absl::InstallFailureSignalHandler(options);
     }
-}
+}*/
 
 bool registerSignalHandler() {
     sigemptyset(&global_mask);
@@ -191,7 +201,7 @@ bool registerSignalHandler() {
     signal(SIGTERM, signalHandler);
 
     // NOTE: this method should be called after registration of all signal handlers !!
-    registerFailureSignalHandlerForQuickThreadDump();
+    //registerFailureSignalHandlerForQuickThreadDump();
     return true;
 }
 
@@ -221,7 +231,7 @@ void waitSignal() {
 }
 
 int sw_main(int argc, char* argv[]) {
-    google_breakpad::CanaryExceptionHandler eh;
+    //google_breakpad::CanaryExceptionHandler eh;
     if (!parseAndValidateArgs(argc, argv)) {
         return -1;
     }
@@ -232,6 +242,8 @@ int sw_main(int argc, char* argv[]) {
         std::cout << "start search worker failed!" << std::endl;
         return -1;
     }
+
+    //PrintAllServices();// 自己添加 打印 pb 的 server .....
 
     if (startSearchWorker(FLAGS_config)) {
         std::cout << "start search worker success!" << std::endl;

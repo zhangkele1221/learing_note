@@ -1,15 +1,15 @@
 #include "SearchWorker.h"
-#include "app_interface/SwApp.h"
+#include "SwApp.h"
 #include "json2pb/pb_to_json.h"
-#include "cppcommon/monitor/cat_initializer.h"
-#include "sw/common/ComponentRegistry.h"
-#include "sw/config/ServerConfiguration.h"
-#include "sw/server/AppProxy.h"
-#include "sw/server/Monitor.h"
-#include "sw/server/SessionLocalData.h"
-#include "sw/server/ChannelManager.h"
-#include "sw/server/component/RpcComponentImpl.h"
-#include "sw/util/Log.h"
+//#include "cppcommon/monitor/cat_initializer.h"
+#include "ComponentRegistry.h"
+#include "ServerConfiguration.h"
+#include "AppProxy.h"
+//#include "sw/server/Monitor.h"
+//#include "sw/server/SessionLocalData.h"
+#include "ChannelManager.h"
+#include "RpcComponentImpl.h"
+#include "Log.h"
 #include <string>
 
 DECLARE_bool(enable_cat_monitor);
@@ -19,7 +19,7 @@ DECLARE_AND_SETUP_LOGGER(sw, SearchWorker);
 SearchWorker::SearchWorker() {
     _started                = false;
     _rpcServer              = nullptr;
-    _workerTargetController = nullptr;
+    //_workerTargetController = nullptr;
     _appProxy               = nullptr;
 }
 
@@ -31,15 +31,19 @@ SearchWorker::~SearchWorker() {
 bool SearchWorker::init(const std::string& configPath) {
     if (!ServerConfiguration::instance()->load(configPath.c_str())) {
         TERR("load ServerConfiguration failed");
-        return false;
+        //return false;
     }
 
     const std::string& catDomain = ServerConfiguration::instance()->catDomain();
+    
+    /*
     if (FLAGS_enable_cat_monitor && !red_search_cppcommon::InitCatClient(catDomain.c_str())) {
         TERR("init catClient with domain[%s] failed", catDomain.c_str());
         return false;
     }
-    TDEBUG("Catclient initialized");
+    */
+
+    //TDEBUG("Catclient initialized");
 
     if (!initWorkerApp()) {
         return false;
@@ -57,7 +61,7 @@ void SearchWorker::destroy() {
     if (_appProxy) {
         _appProxy->rpc_component()->module_topology_manager()->clear();
         auto *app = _appProxy->get_inner_app();
-        DELETE_AND_SET_NULL(_appProxy);
+        //DELETE_AND_SET_NULL(_appProxy);
         _appLoader.destroy(app);
     }
     ChannelManager::instance()->clear();
@@ -83,12 +87,14 @@ bool SearchWorker::start() {
     }
     TDEBUG("start rpc server success.");
 
+    /*
     _workerTargetController = new WorkerTargetController(_appProxy, this,
             ServerConfiguration::instance()->heartbeatServerPort());
     if (!_workerTargetController->start()) {
         TERR("start search worker failed!");
         return false;
-    }
+    }*/
+
     TDEBUG("start heartbeat server success.");
 
     TLOG("start search worker success!");
@@ -103,12 +109,14 @@ void SearchWorker::stop() {
     }
     if (_rpcServer) {
         _rpcServer->stop();
-        DELETE_AND_SET_NULL(_rpcServer);
+        //DELETE_AND_SET_NULL(_rpcServer);
     }
+    /*
     if (_workerTargetController) {
         _workerTargetController->stop();
         DELETE_AND_SET_NULL(_workerTargetController);
-    }
+    }*/
+
     _started = false;
 }
 

@@ -2,15 +2,19 @@
 #define RED_SEARCH_WORKER_SW_CONFIG_SWCONFIG_H_
 
 #include <map>
-#include "putil/legacy/jsonizable.h"
+#include <string>
+
+//#include "putil/legacy/jsonizable.h"
 
 namespace sw {
 
-class SwConfig : public putil::legacy::Jsonizable {
+class SwConfig {  //: public putil::legacy::Jsonizable {
 public:
-    void Jsonize(putil::legacy::Jsonizable::JsonWrapper& json) {
-        json.Jsonize("custom_config", _customConfig, {});
-    }
+    
+    //先注释掉编译 后续再根据需要完善这个json接口
+    //void Jsonize(putil::legacy::Jsonizable::JsonWrapper& json) {
+    //    json.Jsonize("custom_config", _customConfig, {});
+    //}
 
     const std::map<std::string, std::string> & getCustomConfig() const {
         return _customConfig;

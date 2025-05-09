@@ -20,9 +20,9 @@ public:
         return _app->get_runnable_module_factory_registry();
     }
 
-    virtual red_search_cppcommon::ElementRegistry<ReloadableModule>* get_reloadable_module_registry() {
-        return _app->get_reloadable_module_registry();
-    }
+    //virtual red_search_cppcommon::ElementRegistry<ReloadableModule>* get_reloadable_module_registry() {
+    //    return _app->get_reloadable_module_registry();
+    //}
 
     virtual int check_health() const { return _app->check_health(); }
 
@@ -52,7 +52,7 @@ private:
     SwApp * _app;  // not own
     RpcComponentImpl * _rpc_component;  // not own
 
-    putil::LoopThreadPtr _reload_thread;
+    //putil::LoopThreadPtr _reload_thread;
 };
 }  // namespace sw
 

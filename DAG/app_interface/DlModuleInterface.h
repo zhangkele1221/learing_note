@@ -1,6 +1,8 @@
 #ifndef RED_SEARCH_WORKER_SW_APP_INTERFACE_DLMODULEINTERFACE_H_
 #define RED_SEARCH_WORKER_SW_APP_INTERFACE_DLMODULEINTERFACE_H_
 
+//#define API_EXPORT __attribute__((visibility("default")))
+
 #include <cinttypes>
 
 namespace sw {
@@ -41,8 +43,8 @@ public:
 
 //DEFINE_SW_APP("EchoServer", "0", sw::SwApp, sw::example::EchoApp);
 
-#ifndef SW_APP_LINK_STATIC
-#define DEFINE_SW_APP(_name_, _version_, _base_type_, _concrete_type_)                                      \
+//#ifndef SW_APP_LINK_STATIC
+//#define DEFINE_SW_APP(_name_, _version_, _base_type_, _concrete_type_)                                      \
     extern "C" const char *SW_APP_INTERFACE_KEYWORD_GET_NAME(void) { return _name_; }                       \
     extern "C" const char *SW_APP_INTERFACE_KEYWORD_GET_VERSION(void) { return _version_; }                 \
     extern "C" sw::IBaseInterface *SW_APP_INTERFACE_KEYWORD_CREATE_INTERFACE(uint64_t uuid_high,            \
@@ -56,21 +58,24 @@ public:
     }                                                                                                       \
     extern "C" void SW_APP_INTERFACE_KEYWORD_DESTROY_INTERFACE(sw::IBaseInterface *p) { delete p; }
 
-#else
-#define DEFINE_SW_APP(_name_, _version_, _base_type_, _concrete_type_)                                      \
-    const char *SW_APP_INTERFACE_KEYWORD_GET_NAME(void) { return _name_; }                                  \
-    const char *SW_APP_INTERFACE_KEYWORD_GET_VERSION(void) { return _version_; }                            \
-    sw::IBaseInterface *SW_APP_INTERFACE_KEYWORD_CREATE_INTERFACE(uint64_t uuid_high, uint64_t uuid_low) {  \
-        if (_base_type_::uuid_high == uuid_high && (_base_type_::uuid_low == uuid_low)) {                   \
-            return reinterpret_cast<sw::IBaseInterface *>(                                                  \
-                dynamic_cast<_base_type_ *>(new (std::nothrow) _concrete_type_()));                         \
-        } else {                                                                                            \
-            return NULL;                                                                                    \
-        }                                                                                                   \
-    }                                                                                                       \
-    void SW_APP_INTERFACE_KEYWORD_DESTROY_INTERFACE(sw::IBaseInterface *p) { delete p; }
-
-#endif
+#define DEFINE_SW_APP(_name_, _version_, _base_type_, _concrete_type_) \
+    const char * SW_APP_INTERFACE_KEYWORD_GET_NAME(void) { \
+        return _name_; \
+    } \
+    const char * SW_APP_INTERFACE_KEYWORD_GET_VERSION(void) { \
+        return _version_; \
+    } \
+    sw::IBaseInterface *SW_APP_INTERFACE_KEYWORD_CREATE_INTERFACE(uint64_t uuid_high, uint64_t uuid_low) { \
+        if (_base_type_::uuid_high == uuid_high && (_base_type_::uuid_low == uuid_low)) { \
+            return reinterpret_cast<sw::IBaseInterface *>(dynamic_cast<_base_type_*>( \
+                    new (std::nothrow)_concrete_type_())); \
+        } else { \
+            return NULL; \
+        } \
+    } \
+    void SW_APP_INTERFACE_KEYWORD_DESTROY_INTERFACE(sw::IBaseInterface *p) { \
+        delete p; \
+    } \
 
 //class MyPluginImpl : public IMyPlugin { /* 实现接口方法 */ };
 //DEFINE_SW_APP("MyPlugin", "1.0", IMyPlugin, MyPluginImpl);

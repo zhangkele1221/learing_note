@@ -3,7 +3,7 @@
 //#include "sw/server/Monitor.h"
 //#include "sw/proto/rpc_call_config.pb.h"
 #include "Log.h"
-#include "sw/config/ServerConfiguration.h"
+#include "ServerConfiguration.h"
 #include "brpc/channel.h"
 //#include "prpc/Channel.h"
 //#include "prpc/MatrixChannel.h"
@@ -154,100 +154,15 @@ ChannelDetail* ChannelManager::create_channel(const RpcCallingConfig &config) {
     ChannelType channel_type = PRPC_CHANNEL;
     do {
         if (0 == pns_begin_at) {
-            std::string service_name =
-                    config.naming_service_uri.substr(pns_begin_at + 6 /* "pns://" */);
-            std::unique_ptr<prpc::Channel> p_channel(new prpc::Channel());
-            prpc::ChannelOptions options;
-            options.connect_timeout_ms = config.options.connect_timeout_ms;
-            options.timeout_ms = config.options.timeout_ms;
-            options.max_retry = config.options.max_retry;
-            options.protocol = config.options.protocol;
-            options.metaProtoType = config.custom_meta_message_prototype;
-            if (0 != p_channel->init(service_name, etcd_address, etcd_path, load_balancer_name, &options)) {
-                TERR("init prpc::Channel with service[pns://%s] failed", service_name.c_str());
-                break;
-            }
-            TDEBUG("init prpc::Channel with service[%s@pns://%s] successfully",
-                   config.options.protocol.c_str(), service_name.c_str());
-            channel.reset(p_channel.release());
-            if (config.custom_meta_message_prototype != nullptr) {
-                channel_type = PRPC_CHANNEL_WITH_CUSTOM_META;
-            } else {
-                channel_type = PRPC_CHANNEL;
-            }
-        } else if (0 == mpns_begin_at) {
-            std::string service_name =
-                    config.naming_service_uri.substr(mpns_begin_at + 7 /* "mpns://" */);
-            std::unique_ptr<prpc::MatrixChannel> p_channel(new prpc::MatrixChannel());
-            prpc::MatrixChannelOptions options;
-            options.connect_timeout_ms = config.options.connect_timeout_ms;
-            options.timeout_ms = config.options.timeout_ms;
-            options.max_retry = config.options.max_retry;
-            options.protocol = config.options.protocol;
-            options.metaProtoType = config.custom_meta_message_prototype;
+            //....................先编译.....
+        } else if (0 == mpns_begin_at) {        
+            //....................先编译.....
 
-            if (0 != p_channel->init(service_name, etcd_address, etcd_path, load_balancer_name, &options)) {
-                TERR("init prpc::MatrixChannel with service_name[mpns://%s] failed", service_name.c_str());
-                break;
-            }
-            TDEBUG("init prpc::MatrixChannel with service[%s@mpns://%s] successfully", config.options.protocol.c_str(),
-                   service_name.c_str());
-            channel.reset(p_channel.release());
-            channel_type = PRPC_MATRIX_CHANNEL;
         } else if (0 == xpns_begin_at) {
-            std::string service_name =
-                    config.naming_service_uri.substr(xpns_begin_at + 7 /* "xpns://" */);
-            std::unique_ptr<PnsChannel> p_channel(new PnsChannel());
-            PnsChannelOptions options;
-            options.connect_timeout_ms = config.options.connect_timeout_ms;
-            options.timeout_ms = config.options.timeout_ms;
-            options.max_retry = config.options.max_retry;
-            options.protocol = config.options.protocol;
-            options.etcd_address = etcd_address;
-            options.etcd_path = etcd_path;
-            options.worker_meta_prototype = config.custom_meta_message_prototype;
-
-            if (0 != p_channel->Init(service_name, load_balancer_name, &options)) {
-                TERR("init PnsChannelPool with service_name[xpns://%s] failed", service_name.c_str());
-                break;
-            }
-            TDEBUG("init PnsChannelPool with service[%s@xpns://%s] successfully", config.options.protocol.c_str(),
-                   service_name.c_str());
-            channel.reset(p_channel.release());
-            channel_type = PNS_CHANNEL;
+            //....................先编译.....
         } else if (0 == cpns_begin_at) {
             // remove first char 'c' in "cpns://{Tenant}/{namespace}/{group}/{serviceName}"
-            std::string service_name =
-                    config.naming_service_uri.substr(cpns_begin_at + 1);
-            // count '/' after 6th char of pns://{Tenant}/{namespace}/{group}/{serviceName}, 2 or 3 expected
-            size_t segCnt = std::count(service_name.begin() + 6, service_name.end(), '/');
-
-            if (segCnt != 2 && segCnt != 3) {
-                TERR("brpc::Channel with service[@cpns://%s] failed, format incorrect", service_name.c_str());
-                break;
-            }
-
-            std::unique_ptr<brpc::Channel> p_channel(new brpc::Channel());
-            brpc::ChannelOptions options;
-            options.connect_timeout_ms = config.options.connect_timeout_ms;
-            options.timeout_ms = config.options.timeout_ms;
-            options.max_retry = config.options.max_retry;
-            options.protocol = config.options.protocol;
-            if (load_balancer_name == NO_LOAD_BALANCER) {
-                if (0 != p_channel->Init(service_name.c_str(), &options)) {
-                    TERR("init brpc::Channel with service_name[cpns://%s] failed", service_name.c_str());
-                break;
-                }
-            } else {
-                if (0 != p_channel->Init(service_name.c_str(), load_balancer_name.c_str(), &options)) {
-                    TERR("init brpc::Channel with service_name[cpns://%s] failed", service_name.c_str());
-                    break;
-                }
-            }
-            TDEBUG("init brpc::Channel with service[%s@cpns://%s] successfully", config.options.protocol.c_str(),
-                    service_name.c_str());
-            channel.reset(p_channel.release());
-            channel_type = BRPC_CHANNEL;
+            //....................先编译.....
         } else {
             std::unique_ptr<brpc::Channel> p_channel(new brpc::Channel());
             brpc::ChannelOptions options;

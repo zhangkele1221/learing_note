@@ -7,9 +7,9 @@
 #include "google/protobuf/util/json_util.h"
 //#include "sw/proto/rpc_call_config.pb.h"
 //#include "sw/proto/topology_config.pb.h"
-#include "sw/server/ModuleTopologyManager.h"
+#include "ModuleTopologyManager.h"
 //#include "sw/server/SessionLocalData.h"
-#include "sw/server/component/RpcComponentImpl.h"
+#include "RpcComponentImpl.h"
 #include "Log.h"
 #include <string>
 #include <unordered_map>
@@ -28,6 +28,7 @@ AppProxy::AppProxy(SwApp* app) : _app(app) {
 AppProxy::~AppProxy() {}
 
 bool AppProxy::init(std::unordered_map<std::string, Component*>* components) {
+    std::cout<<" AppProxy::init "<<std::endl;
     if (!_app || !components) {
         return false;
     }
@@ -72,7 +73,7 @@ bool AppProxy::init(std::unordered_map<std::string, Component*>* components) {
 bool AppProxy::setup_reload_scheme() {
     // do this after app.init but before RunnableModule construct,
     // since ReloadableModule might depend on app.init and RunnableModule might depend on ReloadableModule.
-    auto* registry = _app->get_reloadable_module_registry();
+    //auto* registry = _app->get_reloadable_module_registry();
 
     bool        succ = true;
     std::string failed_module_name;
@@ -84,6 +85,7 @@ bool AppProxy::setup_reload_scheme() {
     succ 变量控制流程，避免后续无效操作。
     */
    // TimerModule 目前 searcherwork 框架中只有 这个一个 module 是这个  ReloadableModule
+    /*
     registry->visit([this, &succ, &failed_module_name](const std::string& name, ReloadableModule* module) {
         if (succ && !module->init(_app)) {
             failed_module_name = name;
@@ -92,6 +94,7 @@ bool AppProxy::setup_reload_scheme() {
         }
         return true;
     });
+    */
 
     if (!succ) {
         TERR("init ReloadableModule[%s] failed", failed_module_name.c_str());
@@ -99,6 +102,7 @@ bool AppProxy::setup_reload_scheme() {
     }
 
     // 首次加载模块 (load)
+    /*
     registry->visit([&succ, &failed_module_name](const std::string& name, ReloadableModule* module) {
         if (succ && !module->load()) {
             failed_module_name = name;
@@ -107,12 +111,14 @@ bool AppProxy::setup_reload_scheme() {
         }
         return true;
     });
+    */
 
     if (!succ) {
         TERR("first load ReloadableModule[%s] failed", failed_module_name.c_str());
         return false;
     }
 
+    /*
     _reload_thread = putil::LoopThread::createLoopThread(
         [registry]() {
             registry->visit([](const std::string& name, ReloadableModule* module) {
@@ -123,6 +129,7 @@ bool AppProxy::setup_reload_scheme() {
                 return true;
             });
         }, FLAGS_module_reload_interval * 1000);
+    */
 
     return true;
 }

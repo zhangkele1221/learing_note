@@ -1,7 +1,7 @@
 #ifndef RED_SEARCH_WORKER_SW_CONFIG_SERVERCONFIGURATION_H_
 #define RED_SEARCH_WORKER_SW_CONFIG_SERVERCONFIGURATION_H_
 
-#include "sw/config/SwConfig.h"
+#include "SwConfig.h"
 
 namespace sw {
 

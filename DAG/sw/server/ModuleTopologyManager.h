@@ -6,14 +6,17 @@
 #include <unordered_set>
 #include <vector>
 #include <atomic>
+#include <bthread/mutex.h>  // 添加此行
+#include <mutex>            // 原有的标准库头文件
+
 //#include "bthread/mutex.h"
-//#include "butil/containers/doubly_buffered_data.h"
-//#include "sw/proto/topology_config.pb.h"
+#include <butil/containers/doubly_buffered_data.h>
+#include "topology_config.pb.h"
 #include "RpcComponent.h"
 
 namespace sw {
 class SwApp;
-class SessionLocalDataPool;
+//class SessionLocalDataPool;
 
 
 // 模块拓扑结构，描述一个拓扑的配置和运行时状态
@@ -28,8 +31,8 @@ class ModuleTopology {
     int reference_count() const { return _reference_count.load(std::memory_order_acquire); }
     
     // 会话本地数据池（用于存储会话相关的数据）
-    SessionLocalDataPool* session_local_data_pool() const { return _session_local_data_pool; }
-    void own_session_local_data_pool(SessionLocalDataPool * pool);
+    //SessionLocalDataPool* session_local_data_pool() const { return _session_local_data_pool; }
+    //void own_session_local_data_pool(SessionLocalDataPool * pool);
 
     // 拓扑名称、描述、并行模块列表、自定义参数
     std::string name;
@@ -38,7 +41,7 @@ class ModuleTopology {
     std::unordered_map<std::string, std::string> custom_params; // 拓扑级自定义参数
 
  private:
-    SessionLocalDataPool * _session_local_data_pool; // 会话本地数据池
+    //SessionLocalDataPool * _session_local_data_pool; // 会话本地数据池
     std::atomic_int _reference_count;                // 引用计数器（线程安全）
 };
 
@@ -94,11 +97,13 @@ public:
                                     = std::unordered_map<std::string, std::string>(),
                        std::unordered_set<std::string> *parallel_modules = nullptr);
 
+    /*
     bool topology_sort(
        const ::google::protobuf::RepeatedPtrField<proto::RunnableTopology_Element> &topology,
        std::vector<RunnableElement> *sorted_topology,
        const std::unordered_map<std::string, std::string> &factories,
        std::unordered_set<std::string> *parallel_modules = nullptr);
+    */
 
     bool ValidateAndReserveSessionLocalDataOnStartup() const;
 

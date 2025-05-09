@@ -2,12 +2,12 @@
 #include <vector>
 #include <unordered_set>
 #include <unordered_map>
-#include "sw/server/RpcServiceImpl.h"
+#include "RpcServiceImpl.h"
 //#include "sw/server/SwBuiltinServiceImpl.h"
 #include "Log.h"
-#include "sw/common/ComponentRegistry.h"
-#include "sw/server/component/RpcComponentImpl.h"
-#include "sw/server/AppProxy.h"
+#include "ComponentRegistry.h"
+#include "RpcComponentImpl.h"
+#include "AppProxy.h"
 
 namespace sw {
 DECLARE_AND_SETUP_LOGGER(sw, RpcServer);
@@ -16,10 +16,11 @@ bool RpcServer::start(int32_t port, AppProxy * app, const brpc::ServerOptions& o
     if (!addService(app)) {
         return false;
     }
+    /*
     if (_server.AddService(new (std::nothrow)SwBuiltinServiceImpl(), brpc::SERVER_OWNS_SERVICE) != 0) {
         TERR("start server failed due to add SwBuiltinService failed!");
         return false;
-    }
+    }*/
     _server.set_version(gflags::VersionString());
     if (_server.Start(port, &options) != 0) {
         TERR("failed to start RpcServer!");

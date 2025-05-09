@@ -10,6 +10,7 @@ namespace sw {
 class ModuleRegistry {
 public:
     // non-thread-safe
+    
     static ModuleRegistry* instance() {
         if (nullptr == _instance) {
             _instance = new ModuleRegistry();
@@ -17,6 +18,8 @@ public:
 
         return _instance;
     }
+
+   //ModuleRegistry* instance();
 
     red_search_cppcommon::FactoryRegistry<RunnableModule>& get_runnable_module_factory_registry() {
         return _runnable_module_factory_registry;

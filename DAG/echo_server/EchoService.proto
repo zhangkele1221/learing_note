@@ -1,19 +1,12 @@
 syntax = "proto2";
-
 package sw.example.proto;
 
-option java_package = "com.xiaohongshu.service.search.sw.example.proto";
-option java_multiple_files = true;
-option cc_generic_services = true;
+// 删除旧选项
+// option cc_generic_services = true;
 
+// 使用 BRPC 的扩展插件
 service EchoService {
-    rpc echo (EchoRequest) returns (EchoResponse) {}
+    rpc echo(EchoRequest) returns (EchoResponse);
 }
-
-message EchoRequest {
-    optional string query = 1;
-}
-
-message EchoResponse {
-    optional string query = 1;
-}
+message EchoRequest { optional string query = 1; }
+message EchoResponse { optional string query = 1; }

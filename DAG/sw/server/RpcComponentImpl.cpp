@@ -1,7 +1,7 @@
 #include "RpcComponentImpl.h"
 #include "ChannelManager.h"
 #include "ComponentRegistry.h"
-//#include "config/ServerConfiguration.h"
+#include "ServerConfiguration.h"
 #include "Log.h"
 //#include "sw/proto/rpc_call_config.pb.h"
 //#include "sw/proto/topology_config.pb.h"
@@ -99,6 +99,7 @@ static bool pack_semi_sequential_topology(
     return true;
 }
 
+/*
 static bool pack_runnable_topology(
         const ::google::protobuf::RepeatedPtrField<proto::Module>& module_list,
         const proto::RunnableTopology& topology, proto::TopologyConfigWithModuleDefinition* output) {
@@ -108,7 +109,7 @@ static bool pack_runnable_topology(
 
     output->Swap(&packed);
     return true;
-}
+}*/
 
 bool is_pb_service(const std::string& protocol) {
     brpc::AdaptiveProtocolType protocol_type;
@@ -206,6 +207,7 @@ bool RpcComponentImpl::add_serving(const std::string &service_full_name, const s
     }
     const auto * service_desc = descriptor_pool->FindServiceByName(service_full_name);
     if (!service_desc) {
+        std::cout<<" RpcComponentImpl::add_serving service_full_name "<<service_full_name<<std::endl;
         TERR("service[%s] not found in generated_pool. Maybe you have different protobuf linked? "
              "Or you just provided the wrong full qualified name", service_full_name.c_str());
         return false;
@@ -281,6 +283,7 @@ bool RpcComponentImpl::add_topology(const std::string &config_or_file_path, bool
     */
 
     // for simple topology
+    /*
     for (const auto & t : topology_config.simple_topology()) {
         proto::TopologyConfigWithModuleDefinition packed;
         if (!pack_simple_topology(topology_config.module(), t, &packed)) {
@@ -313,6 +316,7 @@ bool RpcComponentImpl::add_topology(const std::string &config_or_file_path, bool
             return false;
         }
     }
+    */
 
     return true;
 }
