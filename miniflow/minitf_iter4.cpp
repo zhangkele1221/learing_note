@@ -321,25 +321,41 @@ class Graph {
 };
 
 // ===================== 迭代4：线程池 + 并发 Executor =====================
+// 说明：
+// 1. ThreadPool：一个极简的固定线程数任务队列，支持 Enqueue 任意可调用对象。
+// 2. Executor：根据计算图拓扑，把每个 Node 的 Compute 任务投递到 ThreadPool，
+//    用共享队列、原子计数、条件变量等机制保证：
+//    - 无数据竞争
+//    - 异常安全：任一节点抛异常 → 取消后续任务并向上层抛异常
+//    - 及时唤醒：任务完成或出错时通过 done_cv 通知主线程
+// 3. 线程数默认为硬件并发度，最小为 4。
+// 4. 线程池析构时先置 stop_，再唤醒所有工作线程，最后 join，保证优雅退出。
+
 class ThreadPool {
  public:
+  // 构造函数：启动 n 个工作线程，每个线程死循环从队列取任务执行
   explicit ThreadPool(size_t n) : stop_(false) {
-    if (n == 0) n = 1;
+    if (n == 0) n = 1;  // 至少 1 个线程
     for (size_t i = 0; i < n; ++i) {
       workers_.emplace_back([this] {
         for (;;) {
           std::function<void()> task;
           {
             std::unique_lock<std::mutex> lk(mu_);
-            cv_.wait(lk, [this]{ return stop_ || !q_.empty(); });
+            // 等待直到 stop_ 置位或队列非空
+            cv_.wait(lk, [this] { return stop_ || !q_.empty(); });
+            // 若停止且队列为空，则退出线程
             if (stop_ && q_.empty()) return;
-            task = std::move(q_.front()); q_.pop();
+            task = std::move(q_.front());
+            q_.pop();
           }
-          task();
+          task();  // 执行任务（可能抛异常，由调用方处理）
         }
       });
     }
   }
+
+  // 析构函数：先置 stop_，再通知所有线程，最后 join
   ~ThreadPool() {
     {
       std::lock_guard<std::mutex> lk(mu_);
@@ -348,69 +364,86 @@ class ThreadPool {
     cv_.notify_all();
     for (auto& t : workers_) t.join();
   }
+
+  // 向线程池投递一个任务（可复制或可移动）
   void Enqueue(std::function<void()> f) {
     {
       std::lock_guard<std::mutex> lk(mu_);
       q_.push(std::move(f));
     }
-    cv_.notify_one();
+    cv_.notify_one();  // 唤醒一个工作线程
   }
+
  private:
-  std::vector<std::thread> workers_;
-  std::queue<std::function<void()>> q_;
-  std::mutex mu_;
-  std::condition_variable cv_;
-  bool stop_;
+  std::vector<std::thread> workers_;      // 工作线程
+  std::queue<std::function<void()>> q_;   // 任务队列
+  std::mutex mu_;                         // 保护队列和 stop_
+  std::condition_variable cv_;            // 等待队列非空或停止
+  bool stop_;                             // 停止标志
 };
 
+// ------------------------------------------------------------------
+// Executor：并发执行计算图
+// ------------------------------------------------------------------
 class Executor {
  public:
-  Executor(const Graph& g, Allocator& alloc,
+  // 构造函数：持有图、内存分配器、可选 feed 字典、线程数
+  Executor(const Graph& g,
+           Allocator& alloc,
            const std::unordered_map<std::string, const Tensor*>* feeds,
            size_t num_threads = std::thread::hardware_concurrency())
-      : g_(g), alloc_(alloc), feeds_(feeds), pool_(num_threads ? num_threads : 4) {}
+      : g_(g),
+        alloc_(alloc),
+        feeds_(feeds),
+        pool_(num_threads ? num_threads : 4) {}
 
-  // 运行并发图；异常通过返回时抛出（或打印）——这里选择抛出 std::runtime_error
+  // 主入口：并发执行整张图，返回所有节点输出
+  // 若任一节点抛异常，则取消剩余任务并把异常信息通过 std::runtime_error 向上传递
   std::unordered_map<std::string, Tensor> Run() {
     const auto& nodes = g_.nodes();
-    const int N = (int)nodes.size();
+    const int N = static_cast<int>(nodes.size());
     if (N == 0) return {};
 
-    // 1) 构建拓扑辅助结构
-    std::vector<int> pending;                 // 每个节点剩余未满足的输入数
-    std::vector<std::vector<int>> adj;        // 邻接表：u -> [v...]
-    g_.BuildTopology(pending, adj);
+    // 1) 拓扑辅助结构
+    std::vector<int> pending;            // pending[i] = 节点 i 还缺多少个输入
+    std::vector<std::vector<int>> adj;   // adj[u] = u 的所有下游节点索引
+    g_.BuildTopology(pending, adj);      // 由 Graph 提供
 
-    // 2) 全局状态
-    std::unordered_map<std::string, Tensor> outputs; // node -> tensor
+    // 2) 全局共享状态
+    std::unordered_map<std::string, Tensor> outputs;  // 节点名 -> 输出张量
     outputs.reserve(N);
-    std::mutex out_mu;
+    std::mutex out_mu;  // 保护 outputs
 
-    std::queue<int> ready; // 初始就绪队列
-    for (int i = 0; i < N; ++i) if (pending[i] == 0) ready.push(i);
+    std::queue<int> ready;  // 当前可执行的节点索引
+    for (int i = 0; i < N; ++i)
+      if (pending[i] == 0) ready.push(i);
 
-    std::atomic<int> inflight{0};            // 在途任务数
+    std::atomic<int> inflight{0};   // 正在执行的任务数
     std::atomic<bool> cancelled{false};
     std::string error_msg;
-    std::mutex err_mu;
+    std::mutex err_mu;              // 保护 error_msg 的写入
     std::condition_variable done_cv;
 
-    OpContext ctx(alloc_, feeds_);
+    OpContext ctx(alloc_, feeds_);  // 每个 Compute 需要的上下文
 
-    // --- 原来这里是：auto schedule_node = [&](int idx){...}; ---
+    // 3) 递归 lambda：把节点 idx 的任务投递到线程池
+    //    注意：schedule_node 需要自引用，因此先声明再定义
+    std::function<void(int)> schedule_node;
 
-    std::function<void(int)> schedule_node;  // 先声明，允许递归调用
     schedule_node = [&](int idx) {
       inflight.fetch_add(1, std::memory_order_relaxed);
-      pool_.Enqueue([&, idx]{
+      pool_.Enqueue([&, idx] {
         try {
+          // 若已取消，直接退出
           if (cancelled.load(std::memory_order_relaxed)) {
             inflight.fetch_sub(1, std::memory_order_relaxed);
             done_cv.notify_all();
             return;
           }
+
           const NodeDef& n = g_.NodeAt(idx);
-          // 收集输入
+
+          // 收集输入张量
           std::vector<const Tensor*> in_tensors;
           in_tensors.reserve(n.inputs.size());
           {
@@ -418,25 +451,31 @@ class Executor {
             for (const auto& in_name : n.inputs) {
               auto it = outputs.find(in_name);
               if (it == outputs.end())
-                throw std::runtime_error("Missing input tensor for node: " + n.name + ", input: " + in_name);
+                throw std::runtime_error("Missing input tensor for node: " +
+                                         n.name + ", input: " + in_name);
               in_tensors.push_back(&it->second);
             }
           }
-          // 计算
+
+          // 创建算子并计算
           auto kernel = OpRegistry::Global().Create(n);
           Tensor out = kernel->Compute(in_tensors, ctx);
+
+          // 保存输出
           {
             std::lock_guard<std::mutex> lk(out_mu);
             outputs.emplace(n.name, std::move(out));
           }
-          // 推进下游
+
+          // 推进下游：对每条出边 v，原子减 pending[v]
           for (int v : adj[idx]) {
             int left = --pending[v];
             if (left == 0 && !cancelled.load(std::memory_order_relaxed)) {
-              schedule_node(v);   // 递归调度 OK
+              schedule_node(v);  // 递归调度
             }
           }
         } catch (const std::exception& e) {
+          // 记录首个异常
           {
             std::lock_guard<std::mutex> lk(err_mu);
             if (!cancelled.exchange(true)) {
@@ -444,19 +483,26 @@ class Executor {
             }
           }
         }
+
+        // 任务完成：减少计数并唤醒主线程
         inflight.fetch_sub(1, std::memory_order_relaxed);
         done_cv.notify_all();
       });
     };
 
-    // 3) 启动初始就绪节点
-    while (!ready.empty()) { schedule_node(ready.front()); ready.pop(); }
-
-    // 4) 等待：直到没有在途任务；若出现错误则抛出
-    {
-      std::unique_lock<std::mutex> lk(out_mu); // 只为配合 cv，无需严格
-      done_cv.wait(lk, [&]{ return inflight.load() == 0; });
+    // 4) 启动所有初始就绪节点
+    while (!ready.empty()) {
+      schedule_node(ready.front());
+      ready.pop();
     }
+
+    // 5) 主线程等待：直到 inflight == 0
+    {
+      std::unique_lock<std::mutex> lk(out_mu);  // 任意 mutex 即可
+      done_cv.wait(lk, [&] { return inflight.load() == 0; });
+    }
+
+    // 6) 若出错则抛异常
     if (cancelled.load() && !error_msg.empty())
       throw std::runtime_error(std::string("Execution failed: ") + error_msg);
 
