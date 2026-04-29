@@ -1,4 +1,4 @@
-# PagedAttention 教学实验（vLLM 思路版）
+# PagedAttention demo实验（vLLM 思路版）
 
 这套实验是一个从零实现、仅 CPU 的教学版本，用来讲清楚 vLLM 类系统里
 PagedAttention 的核心设计。
