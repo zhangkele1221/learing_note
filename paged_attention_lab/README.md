@@ -74,7 +74,7 @@ python3 05_prefix_cache.py
 - `nanovllm/engine/scheduler.py`
 - `nanovllm/layers/attention.py`
 
-## 每步讨论问题（课堂提问建议）
+## 每步讨论问题（问建议）
 
 1. 哪些操作是 O(1)？哪些是 O(sequence length)？原因是什么？
 2. 哪些元数据必须始终正确（token_count / used_slots / ref_count）？
